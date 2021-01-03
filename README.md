@@ -76,3 +76,28 @@ a-23
  = -13
 ````
 
+## Stage 3
+
+Stage 3 adds arbitrary variable names and builtin math functions. A few math constants are defined at the beginning (PI, E, GAMMA, ...). As in stage 2 variables are kept in a global array. Builtins are functions from the `::tcl::mathfunc` namespace which is used by TCL for evaluation of `expr`. `make hoc3` builds this version of the interpreter.
+
+Here is a sample session of `hoc3` demonstrating the new capabilities :
+````
+$ tclsh hoc3.tac.tcl
+cos(PI)
+ = -1.0
+sin(PI/6)
+ = 0.49999999999999994
+PI-4*atan(1)
+ = 0.0
+E-exp(1)
+ = 0.0
+sqrt(2)
+ = 1.4142135623730951
+````
+
+## Stage 4
+
+Stage 4 is a reimplementation of stage 3 using the TCL bytecode engine.
+
+**Work in progress**
+
