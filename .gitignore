@@ -1,0 +1,5 @@
+*.fcl.tcl
+*.tac.tcl
+*.output
+*.tac.tab.tcl
+*.tac.output

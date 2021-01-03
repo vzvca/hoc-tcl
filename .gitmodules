@@ -1,0 +1,8 @@
+[submodule "taccle"]
+	path = taccle
+	url = https://github.com/devnull42/taccle.git
+	branch = master
+[submodule "fickle"]
+	path = fickle
+	url = https://github.com/devnull42/fickle.git
+	branch = master
