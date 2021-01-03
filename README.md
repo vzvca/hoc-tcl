@@ -97,7 +97,20 @@ sqrt(2)
 
 ## Stage 4
 
-Stage 4 is a reimplementation of stage 3 using the TCL bytecode engine.
+Stage 4 is a reimplementation of stage 3 using the TCL bytecode engine. Let's replay stage 3 interactive session, same results : 
 
-**Work in progress**
+````
+$ tclsh hoc4.tac.tcl
+cos(PI)
+ = -1.0
+sin(PI/6)
+ = 0.49999999999999994
+PI-4*atan(1)
+ = 0.0
+E-exp(1)
+ = 0.0
+sqrt(2)
+ = 1.4142135623730951
+ ````
 
+The bytecode is generated in a list kept in global variable `::todo`, bytecode instructions are pushed during parsing. Once a complete line has been parsed, the bytecode is assembled using `::tcl::unsupported::assemble` which evaluates it at the same time. The result is printed.
