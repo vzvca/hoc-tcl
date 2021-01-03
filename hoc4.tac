@@ -11,6 +11,18 @@ array set ::mem {
     DEG 57.29577951308232087680
     PHI 1.611803398874989484820
 }
+
+set ::todo {}
+
+proc code { args } {
+     lappend ::todo {*}$args ";"
+}	     
+
+proc asm {} {
+     set res [::tcl::unsupported::assemble [join $::todo]]
+     set ::todo {}
+     return $res
+}
 %}
 
 %token NUMBER VAR BLTIN NEWLINE
@@ -25,31 +37,26 @@ start: line NEWLINE start
  | line
  ;
 
-line: expr    { puts " = $1" }
- | asgn
+line: expr    { puts " = [asm]" }
+ | asgn       { asm }
  | error      { puts " -- error" }
  |   # empty
  ;
 
-asgn: VAR '=' expr     { set ::mem($1) $3 ; set _ $3 }
+asgn: VAR '=' expr     { code push $1 ; code push ::mem ; code reverse 3 ; code storeArrayStk }
  ;
 
 expr: NUMBER { code push $1 }
- | VAR {
-       set failed [catch { set _ $::mem($1) }]
-       if { $failed } {
-       	  puts "undefined variable $1"
-       }
- }
+ | VAR { code push ::mem ; code push $1 ; code loadArrayStk }
  | asgn
- | BLTIN '(' expr ')' { code push ::tcl::mathfunc::$1 push $3 invokeStk 2 }
+ | BLTIN '(' expr ')' { code push ::tcl::mathfunc::$1 ; code reverse 2 ; code invokeStk 2 }
  | expr '+' expr    { code add }
  | expr '-' expr    { code sub }
- | expr '*' expr    { code mul }
+ | expr '*' expr    { code mult }
  | expr '/' expr    { code div }
  | expr '^' expr    { code expon }
- | '(' expr ')'     { set _ $2 }
- | '-' expr %prec UNARYMINUS { set _ [expr -$2] }
+ | '(' expr ')'     
+ | '-' expr %prec UNARYMINUS { code uminus }
  ;
  
 %%
