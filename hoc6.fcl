@@ -1,0 +1,46 @@
+# hoc stage 6 from "The Unix Programming Environment"
+# (c) 2020 vzvca
+
+%{
+source "hoc6.tac.tab.tcl"
+%}
+
+%option interactive
+
+number  [0-9]+[.]?[0-9]*([eE][-+]?[0-9]+)?
+bltin   cos|acos|tan|atan|sin|asin|log|log10|sqrt|int|exp
+
+%%
+
+{number}  { set ::yylval $yytext; return $::NUMBER }
+{bltin}   { set ::yylval $yytext; return $::BLTIN }
+print     { return $::PRINT }
+read      { return $::READ }
+if        { return $::IF }
+else      { return $::ELSE }
+while     { return $::WHILE }
+proc      { return $::PROC }
+func      { return $::FUNC }
+return    { return $::RETURN }
+\$[0-9]   { set ::yylval [string index $yytext 1]; return $::ARG }
+[_A-Za-z][_A-Za-z0-9]* {
+    set ::yylval $yytext;
+    if { [llength [info commands $yytext]] } {
+       return $::PROCNAME
+    }
+    return $::VAR
+}
+||        { return $::OR }
+&&        { return $::AND }
+==        { return $::EQ }
+!=        { return $::NE }
+<=        { return $::LE }
+>=        { return $::GE }
+<         { return $::LT }
+>         { return $::GT }
+!         { return $::NOT }
+\{        { return $::LBRACKET }
+\}        { return $::RBRACKET }
+\n        { return $::NEWLINE }
+\s        # ignore whitespace
+.         { set ::yylval $yytext; return $yytext }
