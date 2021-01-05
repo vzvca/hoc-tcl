@@ -1,0 +1,35 @@
+# hoc stage 5 from "The Unix Programming Environment"
+# (c) 2020 vzvca
+
+%{
+source "hoc5.tac.tab.tcl"
+%}
+
+%option interactive
+
+number  [0-9]+[.]?[0-9]*([eE][-+]?[0-9]+)?
+bltin   cos|acos|tan|atan|sin|asin|log|log10|sqrt|int|exp
+
+%%
+
+{number}  { set ::yylval $yytext; return $::NUMBER }
+{bltin}   { set ::yylval $yytext; return $::BLTIN }
+print     { return $::PRINT }
+if        { return $::IF }
+else      { return $::ELSE }
+while     { return $::WHILE }
+[_A-Za-z][_A-Za-z0-9]* { set ::yylval $yytext; return $::VAR }
+||        { return $::OR }
+&&        { return $::AND }
+==        { return $::EQ }
+!=        { return $::NE }
+<=        { return $::LE }
+>=        { return $::GE }
+<         { return $::LT }
+>         { return $::GT }
+!         { return $::NOT }
+\{        { return $::LBRACKET }
+\}        { return $::RBRACKET }
+\n        { return $::NEWLINE }
+\s        # ignore whitespace
+.         { set ::yylval $yytext; return $yytext }

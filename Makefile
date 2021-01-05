@@ -4,7 +4,10 @@ TCL=tclsh
 FICKLE=./fickle/fickle.tcl
 TACCLE=./taccle/taccle.tcl
 
-all: hoc1 hoc2 hoc3 hoc4
+all: hoc1 hoc2 hoc3 hoc4 hoc5
+
+hoc5: hoc5.fcl.tcl hoc5.tac.tcl
+	@echo "!done"
 
 hoc4: hoc4.fcl.tcl hoc4.tac.tcl
 	@echo "!done"
@@ -28,4 +31,4 @@ hoc1: hoc1.fcl.tcl hoc1.tac.tcl
 clean:
 	-rm -f *tcl *output
 
-.PHONY: clean all hoc1 hoc2 hoc3 hoc4
+.PHONY: clean all hoc1 hoc2 hoc3 hoc4 hoc5
