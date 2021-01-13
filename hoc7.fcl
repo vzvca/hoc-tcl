@@ -1,14 +1,14 @@
-# hoc stage 6 from "The Unix Programming Environment"
+# hoc stage 7 from "The Unix Programming Environment"
 # (c) 2020 vzvca
 
 %{
-source "hoc6.tac.tab.tcl"
+source "hoc7.tac.tab.tcl"
 %}
 
 %option interactive
 
 number  [0-9]+[.]?[0-9]*([eE][-+]?[0-9]+)?
-bltin   cos|acos|tan|atan|sin|asin|log|log10|sqrt|int|exp
+bltin   abs|cos|acos|cosh|tan|atan|tanh|sin|asin|sinh|log|log10|sqrt|int|exp|floor|ceil|rand|hypot|atan2
 
 %%
 
@@ -19,7 +19,6 @@ read      { return $::READ }
 if        { return $::IF }
 else      { return $::ELSE }
 while     { return $::WHILE }
-proc      { return $::PROC }
 func      { return $::FUNC }
 return    { return $::RETURN }
 \$[0-9]   { set ::yylval [string index $yytext 1]; return $::ARG }
@@ -27,10 +26,21 @@ return    { return $::RETURN }
 [_A-Za-z][_A-Za-z0-9]* { set ::yylval $yytext; return $::IDENT }
 ||        { return $::OR }
 &&        { return $::AND }
+<<=       { return $::LSLASSIGN }
+>>=       { return $::LSRASSIGN }
 ==        { return $::EQ }
+~~        { return $::EPSEQ }
+!~        { return $::EPSNE }
+\+=       { return $::ADDASSIGN}
+-=        { return $::SUBASSIGN}
+\*=       { return $::MULASSIGN}
+/=        { return $::DIVASSIGN}
+%=        { return $::MODASSIGN}
 !=        { return $::NE }
 <=        { return $::LE }
 >=        { return $::GE }
+<<        { return $::LSL }
+>>        { return $::LSR }
 <         { return $::LT }
 >         { return $::GT }
 !         { return $::NOT }

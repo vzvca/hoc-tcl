@@ -4,25 +4,28 @@ TCL=tclsh
 FICKLE=./fickle/fickle.tcl
 TACCLE=./taccle/taccle.tcl
 
-all: hoc1 hoc2 hoc3 hoc4 hoc5 hoc6
+all: hoc1 hoc2 hoc3 hoc4 hoc5 hoc6 hoc7
+
+hoc7: hoc7.fcl.tcl hoc7.tac.tcl
+	@echo "done!"
 
 hoc6: hoc6.fcl.tcl hoc6.tac.tcl
-	@echo "!done"
+	@echo "done!"
 
 hoc5: hoc5.fcl.tcl hoc5.tac.tcl
-	@echo "!done"
+	@echo "done!"
 
 hoc4: hoc4.fcl.tcl hoc4.tac.tcl
-	@echo "!done"
+	@echo "done!"
 
 hoc3: hoc3.fcl.tcl hoc3.tac.tcl
-	@echo "!done"
+	@echo "done!"
 
 hoc2: hoc2.fcl.tcl hoc2.tac.tcl
-	@echo "!done"
+	@echo "done!"
 
 hoc1: hoc1.fcl.tcl hoc1.tac.tcl
-	@echo "!done"
+	@echo "done!"
 
 
 %.fcl.tcl: %.fcl
