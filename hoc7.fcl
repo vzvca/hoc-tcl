@@ -26,6 +26,8 @@ return    { return $::RETURN }
 [_A-Za-z][_A-Za-z0-9]* { set ::yylval $yytext; return $::IDENT }
 ||        { return $::OR }
 &&        { return $::AND }
+--        { return $::DECR }
+\+\+      { return $::INCR }
 <<=       { return $::LSLASSIGN }
 >>=       { return $::LSRASSIGN }
 ==        { return $::EQ }

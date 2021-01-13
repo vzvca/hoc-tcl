@@ -1,4 +1,4 @@
-# hoc stage 6 from "The Unix Programming Environment"
+# hoc stage 7 from "The Unix Programming Environment"
 # (c) 2020 vzvca
 
 %{
@@ -33,8 +33,8 @@ proc asm {} {
 
 proc opassign { op var } {
      code push ::mem ; code push $var ; code loadArrayStk
-     code $op
-     code push ::var ; code push ::mem ; core reverse 3 ; code storeArrayStk
+     code reverse 2 ; code $op
+     code push $var ; code push ::mem ; code reverse 3 ; code storeArrayStk
 }
 
 proc epstst { op } {
@@ -82,7 +82,7 @@ proc curdefnblki {} {
 }
 %}
 
-%token NUMBER PRINT READ IDENT BLTIN PROCNAME NEWLINE WHILE IF ELSE FUNC RETURN ARG LBRACKET RBRACKET STRING
+%token NUMBER PRINT READ IDENT BLTIN PROCNAME NEWLINE WHILE IF ELSE FUNC RETURN ARG LBRACKET RBRACKET STRING INCR DECR
 %right '=' ADDASSIGN SUBASSIGN MULASSIGN DIVASSIGN LSRASSIGN LSLASSIGN MODASSIGN
 %left OR
 %left AND
@@ -106,7 +106,7 @@ asgn:
    IDENT '=' expr  { code push $1 ; code push ::mem ; code reverse 3 ; code storeArrayStk }
  | IDENT ADDASSIGN expr { opassign add $1 } 
  | IDENT SUBASSIGN expr { opassign sub $1 } 
- | IDENT MULASSIGN expr { opassign mul $1 } 
+ | IDENT MULASSIGN expr { opassign mult $1 } 
  | IDENT DIVASSIGN expr { opassign div $1 } 
  | IDENT MODASSIGN expr { opassign mod $1 } 
  | IDENT LSLASSIGN expr { opassign lshift $1 } 
@@ -170,6 +170,10 @@ or: OR { startblk and ; code dup ; code push 0 ; code ne ; code jumpTrue be_[cur
 expr:
    NUMBER { code push $1 }
  | procname '(' arglist ')' { code invokeStk [incr 3] }
+ | INCR IDENT { code push ::mem ; code push $2 ; code incrArrayStkImm 1 }
+ | DECR IDENT { code push ::mem ; code push $2 ; code incrArrayStkImm -1 }
+ | IDENT INCR { code push ::mem ; code push $1 ; code incrArrayStkImm 1 ; code push 1 ; code sub }
+ | IDENT DECR { code push ::mem ; code push $1 ; code incrArrayStkImm -1 ; code push 1 ; code add }
  | asgn
  | IDENT { code push ::mem ; code push $1 ; code loadArrayStk }
  | ARG { code load $1 }
