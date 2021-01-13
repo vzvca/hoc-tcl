@@ -114,3 +114,8 @@ sqrt(2)
  ````
 
 The bytecode is generated in a list kept in global variable `::todo`, bytecode instructions are pushed during parsing. Once a complete line has been parsed, the bytecode is assembled using `::tcl::unsupported::assemble` which evaluates it at the same time. The result is printed.
+
+
+## Stage 5
+
+Adding control flow `if ... else` and `while` loops. They get compiled to TCL bytecode and can be nested.

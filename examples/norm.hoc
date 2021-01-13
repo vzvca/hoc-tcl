@@ -1,0 +1,5 @@
+func norm() {
+     return sqrt( $1^2 + $2^2 )
+}
+
+print norm(3,4)
