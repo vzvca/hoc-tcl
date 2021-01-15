@@ -176,36 +176,36 @@ expr:
 source hoc6.fcl.tcl
 
 set debug 0
-set files [list]
-if { [llength $argv] > 0 } {
-   for { set iarg 0 } { $iarg < [llength $argv] } { incr iarg } {
-       set arg [lindex $argv $iarg]
+proc main {} {
+    set files [list]
+    foreach arg $::argv {
        if { $arg eq "-d" } {
-	   incr debug
+	   incr ::debug
        } else {
 	   lappend files $arg
        }
-   }
-}
+    }
 
-foreach fname $files {
-    if { $fname ne "-" } {
-	set fin [open $fname "r"]
-	fconfigure $fin -buffering line
-	yyrestart $fin
-	yyparse
-	close $fin
-    } else {
-	yyrestart stdin
-	set files {}
-	break
+    foreach fname $files {
+	if { $fname ne "-" } {
+	    set fin [open $fname "r"]
+	    fconfigure $fin -buffering line
+	    yyrestart $fin
+	    yyparse
+	    close $fin
+	} else {
+	    yyrestart stdin
+	    set files {}
+	    break
+	}
+    }
+
+    if { [llength $files] == 0 } {
+	while 1 {
+	    set failed [catch { yyparse } msg]
+	    if { $failed } { puts $msg }
+	}
     }
 }
 
-if { [llength $files] == 0 } {
-    while 1 {
-	set failed [catch { yyparse } msg]
-	if { $failed } { puts $msg }
-    }
-}
-
+main
