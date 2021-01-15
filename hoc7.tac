@@ -38,9 +38,9 @@ proc opassign { op var } {
 }
 
 proc epstst { op } {
-     code sub ; code ::tcl::mathfunc::abs ; code invokeStk 2
+     code sub ; code push ::tcl::mathfunc::abs ; code reverse 2 ; code invokeStk 2
      code push ::mem ; code push EPS ; code loadArrayStk
-     code op
+     code $op
 }
 
 # -- nested control structure support
@@ -73,6 +73,17 @@ proc check_return {} {
      	error "return outside function definition"
      }
 }
+proc check_loop { token } {
+    set fblk ""
+    foreach blk $::nested {
+	set what [lindex $blk 0]
+	if { $what eq "func" } { set fblk "" ; continue }
+	if { ($what eq "while") || ($what eq "do") } { set fblk "loop" }
+    }
+    if { $fblk ne "loop" } {
+	error "$token invoked outside of a loop"
+    }
+}
 proc curdefnblki {} {
      foreach blk $::nested {
          lassign $blk what blki
@@ -80,9 +91,16 @@ proc curdefnblki {} {
      }
      return $res
 }
+proc curloopblki {} {
+    foreach blk $::nested {
+        lassign $blk what blki
+	if { ($what eq "while") || ($what eq "do") } { set res $blki }
+    }
+    return $res
+}
 %}
 
-%token NUMBER PRINT READ IDENT BLTIN PROCNAME NEWLINE WHILE IF ELSE FUNC RETURN ARG LBRACKET RBRACKET STRING INCR DECR
+%token NUMBER PRINT READ IDENT BLTIN PROCNAME VARNAME NEWLINE DO WHILE IF ELSE FUNC RETURN ARG LBRACKET RBRACKET STRING INCR DECR BREAK CONTINUE
 %right '=' ADDASSIGN SUBASSIGN MULASSIGN DIVASSIGN LSRASSIGN LSLASSIGN MODASSIGN
 %left OR
 %left AND
@@ -127,9 +145,12 @@ stmt: expr { code pop }
  | RETURN { check_return ; code push 0 ; code jump be_[curdefnblki]  }
  | RETURN expr { check_return ; code jump be_[curdefnblki] }
  | PRINT expr { code push puts ; code reverse 2 ; code invokeStk 2 ; code pop}
- | while cond stmt { code jump bs_[curblki] ; code label bf_[curblki] ; endblk  }
+ | while cond stmt { code jump bs_[curblki] ; code label bf_[curblki] ; code label be_[curblki] ; endblk  }
+ | do stmt while cond { code jumpTrue bs_[curblki] ; code label bf_[curblki] ; code label be_[curblki] ; endblk }
  | if cond stmt else stmt { code label be_[curblki] ; endblk }
  | if cond stmt { code label bf_[curblki] ; endblk }
+ | BREAK { check_loop break ; code jump be_[curloopblki] }
+ | CONTINUE { check_loop continue ; code jump bs_[curloopblki] }
  | LBRACKET stmtlist RBRACKET {}
  ;
 
@@ -137,6 +158,9 @@ if: IF { startblk if }
  ;
 
 else: ELSE { code jump be_[curblki] ; code label bf_[curblki] }
+ ;
+
+do: DO { startblk do ; code label bs_[curblki] }
  ;
 
 while: WHILE { startblk while ; code label bs_[curblki] }
@@ -172,8 +196,8 @@ expr:
  | procname '(' arglist ')' { code invokeStk [incr 3] }
  | INCR IDENT { code push ::mem ; code push $2 ; code incrArrayStkImm 1 }
  | DECR IDENT { code push ::mem ; code push $2 ; code incrArrayStkImm -1 }
- | IDENT INCR { code push ::mem ; code push $1 ; code incrArrayStkImm 1 ; code push 1 ; code sub }
- | IDENT DECR { code push ::mem ; code push $1 ; code incrArrayStkImm -1 ; code push 1 ; code add }
+ | VARNAME INCR { code push ::mem ; code push $1 ; code incrArrayStkImm 1 ; code push 1 ; code sub }
+ | VARNAME DECR { code push ::mem ; code push $1 ; code incrArrayStkImm -1 ; code push 1 ; code add }
  | asgn
  | IDENT { code push ::mem ; code push $1 ; code loadArrayStk }
  | ARG { code load $1 }

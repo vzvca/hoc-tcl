@@ -18,11 +18,15 @@ print     { return $::PRINT }
 read      { return $::READ }
 if        { return $::IF }
 else      { return $::ELSE }
+do        { return $::DO }
 while     { return $::WHILE }
 func      { return $::FUNC }
 return    { return $::RETURN }
+break     { return $::BREAK }
+continue  { return $::CONTINUE }
 \$[0-9]   { set ::yylval [string index $yytext 1]; return $::ARG }
-[_A-Za-z][_A-Za-z0-9]*(?=\s*\() { set ::yylval $yytext; return $::PROCNAME }
+[_A-Za-z][_A-Za-z0-9]*(?=\s*\+\+) { set ::yylval $yytext; return $::VARNAME }
+[_A-Za-z][_A-Za-z0-9]*(?=\s*--) { set ::yylval $yytext; return $::VARNAME }
 [_A-Za-z][_A-Za-z0-9]* { set ::yylval $yytext; return $::IDENT }
 ||        { return $::OR }
 &&        { return $::AND }
