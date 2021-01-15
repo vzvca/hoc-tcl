@@ -16,7 +16,7 @@ proc unknown args {
     __puts "$args"
 }
 
-foreach cmd {if while set array proc foreach puts eval open read close} {
+foreach cmd {if while set array proc foreach puts eval open read close rename} {
     rename $cmd __$cmd
 }
 
