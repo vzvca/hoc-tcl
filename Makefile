@@ -6,35 +6,17 @@ TACCLE=./taccle/taccle.tcl
 
 all: hoc1 hoc2 hoc3 hoc4 hoc5 hoc6 hoc7
 
-hoc7: hoc7.fcl.tcl hoc7.tac.tcl
-	@echo "done!"
-
-hoc6: hoc6.fcl.tcl hoc6.tac.tcl
-	@echo "done!"
-
-hoc5: hoc5.fcl.tcl hoc5.tac.tcl
-	@echo "done!"
-
-hoc4: hoc4.fcl.tcl hoc4.tac.tcl
-	@echo "done!"
-
-hoc3: hoc3.fcl.tcl hoc3.tac.tcl
-	@echo "done!"
-
-hoc2: hoc2.fcl.tcl hoc2.tac.tcl
-	@echo "done!"
-
-hoc1: hoc1.fcl.tcl hoc1.tac.tcl
-	@echo "done!"
-
-
 %.fcl.tcl: %.fcl
 	$(TCL) $(FICKLE) -o $@ $<
 
 %.tac.tcl: %.tac
 	$(TCL) $(TACCLE) -d -v -w -o $@ $<
 
+%: %.fcl.tcl %.tac.tcl
+	tclsh tool/flatten.tcl $@.tac.tcl > $@
+	chmod +x $@
+
 clean:
 	-rm -f *tcl *output
 
-.PHONY: clean all hoc1 hoc2 hoc3 hoc4 hoc5
+.PHONY: clean all

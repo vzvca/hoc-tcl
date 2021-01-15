@@ -139,7 +139,8 @@ defn:
    }
  ;
 
-func: FUNC { startblk func } ;
+func: FUNC { startblk func }
+ ;
 
 stmt: expr { code pop }
  | RETURN { check_return ; code push 0 ; code jump be_[curdefnblki]  }
@@ -191,6 +192,12 @@ and: AND { startblk and ; code dup ; code push 0 ; code eq ; code jumpTrue be_[c
 or: OR { startblk and ; code dup ; code push 0 ; code ne ; code jumpTrue be_[curblki] }
  ;
 
+ternaryTrue: '?' { startblk ? ; code jumpFalse bf_[curblki] }
+ ;
+
+ternaryFalse: ':' { code jump be_[curblki] ; code label bf_[curblki] }
+ ;
+
 expr:
    NUMBER { code push $1 }
  | procname '(' arglist ')' { code invokeStk [incr 3] }
@@ -213,6 +220,7 @@ expr:
  | expr '%' expr      { code mod }
  | expr LSL expr      { code lshift }
  | expr LSR expr      { code rshift }
+ | expr ternaryTrue expr ternaryFalse expr { code label be_[curblki] ; endblk }
  | '(' expr ')'     
  | '-' expr %prec UNARYMINUS { code uminus }
  | expr GT expr       { code gt }
@@ -233,36 +241,36 @@ expr:
 source hoc7.fcl.tcl
 
 set debug 0
-set files [list]
-if { [llength $argv] > 0 } {
-   for { set iarg 0 } { $iarg < [llength $argv] } { incr iarg } {
-       set arg [lindex $argv $iarg]
+proc main {} {
+    set files [list]
+    foreach arg $::argv {
        if { $arg eq "-d" } {
-	   incr debug
+	   incr ::debug
        } else {
 	   lappend files $arg
        }
-   }
-}
+    }
 
-foreach fname $files {
-    if { $fname ne "-" } {
-	set fin [open $fname "r"]
-	fconfigure $fin -buffering line
-	yyrestart $fin
-	yyparse
-	close $fin
-    } else {
-	yyrestart stdin
-	set files {}
-	break
+    foreach fname $files {
+	if { $fname ne "-" } {
+	    set fin [open $fname "r"]
+	    fconfigure $fin -buffering line
+	    yyrestart $fin
+	    yyparse
+	    close $fin
+	} else {
+	    yyrestart stdin
+	    set files {}
+	    break
+	}
+    }
+
+    if { [llength $files] == 0 } {
+	while 1 {
+	    set failed [catch { yyparse } msg]
+	    if { $failed } { puts $msg }
+	}
     }
 }
 
-if { [llength $files] == 0 } {
-    while 1 {
-	set failed [catch { yyparse } msg]
-	if { $failed } { puts $msg }
-    }
-}
-
+main

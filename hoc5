@@ -1,0 +1,2794 @@
+#! /usr/bin/env tclsh
+## ==========> source hoc5.tac.tcl  (start)
+array set ::mem {
+    PI  3.14159265358979323846
+    E   2.7182818284590452354
+    LN2 0.693147180559945309417
+    DEG 57.29577951308232087680
+    PHI 1.611803398874989484820
+}
+set ::todo {}
+proc code { args } {
+     lappend ::todo {*}$args ";"
+}
+proc asm {} {
+     set res [::tcl::unsupported::assemble [join $::todo]]
+     set ::todo {}
+     return $res
+}
+set ::nblk 0
+set ::nested {}
+proc startblk { what } {
+     set blk [incr ::nblk]
+     lappend ::nested [list $what $blk]
+     return $blk
+}
+proc endblk {} {
+     set ::nested [lrange $::nested 0 end-1]
+}
+proc curblk {} {
+     return [lindex $::nested end]
+}
+proc curblki {} {
+     return [lindex [curblk] end]
+}
+proc YYABORT {} {
+    return -code return 1
+}
+proc YYACCEPT {} {
+    return -code return 0
+}
+proc yyclearin {} {
+    upvar yytoken t
+    set t ""
+}
+proc yyerror s {
+    puts stderr $s
+}
+proc yysetupvalues {stack pointer numsyms} {
+    upvar 1 1 y
+    set y {}
+    for {set i 1} {$i <= $numsyms} {incr i} {
+        upvar 1 $i y
+        set y [lindex $stack $pointer]
+        incr pointer
+    }
+}
+proc yyunsetupvalues numsyms {
+    for {set i 1} {$i <= $numsyms} {incr i} {
+        upvar 1 $i y
+        unset y
+    }
+}
+array set ::yytable {
+  66:258,target 37
+  62:^ shift
+  4:/,target 22
+  40:(,target 1
+  39:(,target 1
+  5:276,target 11
+  56:257 reduce
+  48:- reduce
+  6:260,target 23
+  6:259,target 23
+  63:266,target 34
+  56:258 reduce
+  56:260 reduce
+  56:259 reduce
+  56:261 reduce
+  48:0 reduce
+  46:/,target 34
+  56:262 reduce
+  60:274,target 43
+  59:274,target 30
+  56:263 reduce
+  26:257 reduce
+  56:264 reduce
+  45:263,target 8
+  26:258 reduce
+  61:257,target 39
+  57:),target 27
+  56:265 reduce
+  26:259 reduce
+  26:260 reduce
+  56:266 reduce
+  26:261 reduce
+  56:267 reduce
+  26:262 reduce
+  26:276,target 41
+  72:276,target 12
+  56:268 reduce
+  26:263 reduce
+  57:265,target 27
+  56:270 reduce
+  56:269 reduce
+  26:),target 41
+  26:264 reduce
+  27:259,target 6
+  27:260,target 7
+  64:0,target 35
+  56:271 reduce
+  26:265 reduce
+  56:272 reduce
+  26:266 reduce
+  70:-,target 16
+  69:-,target 18
+  56:273 reduce
+  26:267 reduce
+  56:274 reduce
+  26:268 reduce
+  26:269 reduce
+  26:270 reduce
+  56:276 reduce
+  26:271 reduce
+  38:-,target 2
+  35:286,target 59
+  21:( reduce
+  26:272 reduce
+  21:) reduce
+  26:273 reduce
+  57:^,target 35
+  44:*,target 31
+  21:* reduce
+  26:274 reduce
+  21:+ reduce
+  22:258,target 10
+  67:258,target 38
+  26:276 reduce
+  6:276,target 23
+  21:- reduce
+  63:( reduce
+  26:^,target 35
+  63:) reduce
+  21:/ reduce
+  64:266,target 35
+  63:* shift
+  21:0 reduce
+  63:+ shift
+  63:- shift
+  62:+,target 32
+  4:267,target 22
+  61:274,target 43
+  67:(,target 38
+  63:/ shift
+  63:0 reduce
+  62:257,target 33
+  27:276,target 11
+  36:(,target 1
+  58:265,target 29
+  28:259,target 6
+  28:260,target 7
+  62:257 reduce
+  62:258 reduce
+  62:260 reduce
+  62:259 reduce
+  62:261 reduce
+  55:273,target 28
+  62:262 reduce
+  62:263 reduce
+  32:257 shift
+  62:264 reduce
+  36:286,target 60
+  62:265 reduce
+  32:259 shift
+  32:260 shift
+  62:266 reduce
+  62:267 reduce
+  53:264,target 70
+  68:258,target 25
+  62:268 reduce
+  35:( shift
+  62:270 reduce
+  62:269 reduce
+  62:271 reduce
+  61:0,target 39
+  62:272 reduce
+  50:272,target 41
+  19:266,target 24
+  66:-,target 33
+  65:266,target 36
+  62:273 reduce
+  62:274 reduce
+  35:- shift
+  62:276 reduce
+  62:274,target 33
+  35:-,target 2
+  47:263,target 20
+  9:( reduce
+  63:257,target 34
+  28:276,target 11
+  32:276 shift
+  44:271,target 31
+  60:265,target 40
+  59:265,target 30
+  29:259,target 6
+  29:260,target 7
+  30:259,target 6
+  30:260,target 7
+  32:279 goto
+  56:273,target 26
+  26:267,target 41
+  58:+,target 29
+  64:(,target 35
+  37:286,target 61
+  32:286 goto
+  54:264,target 11
+  70:258,target 16
+  69:258,target 18
+  33:(,target 1
+  21:^ shift
+  67:257 reduce
+  67:258 reduce
+  21:266,target 32
+  67:260 reduce
+  67:259 reduce
+  66:266,target 37
+  50:( reduce
+  49:( reduce
+  67:261 reduce
+  67:262 reduce
+  63:^ shift
+  50:* shift
+  67:263 reduce
+  50:+ shift
+  37:257 shift
+  6:267,target 23
+  67:264 reduce
+  63:274,target 34
+  67:265 reduce
+  50:- shift
+  49:- reduce
+  48:263,target 14
+  37:260 shift
+  37:259 shift
+  67:266 reduce
+  64:257,target 35
+  67:267 reduce
+  50:/ shift
+  67:268 reduce
+  50:0 reduce
+  29:276,target 11
+  30:276,target 11
+  67:270 reduce
+  67:269 reduce
+  45:271,target 40
+  4:258,target 22
+  19:),target 24
+  20:),target 44
+  67:271 reduce
+  61:265,target 39
+  57:0,target 27
+  31:259,target 6
+  31:260,target 7
+  67:272 reduce
+  0:283,target 17
+  67:273 reduce
+  63:-,target 33
+  67:274 reduce
+  68:*,target 25
+  57:273,target 27
+  26:0,target 41
+  67:276 reduce
+  32:-,target 2
+  38:286,target 62
+  55:264,target 28
+  37:276 shift
+  25:258,target 5
+  71:258,target 5
+  19:^,target 24
+  20:^,target 35
+  37:279 goto
+  22:( reduce
+  52:272,target 41
+  22:266,target 10
+  67:266,target 38
+  22:* shift
+  22:+ shift
+  55:+,target 28
+  18:274,target 43
+  22:- shift
+  64:274,target 35
+  64:( reduce
+  61:(,target 39
+  37:286 goto
+  64:) reduce
+  50:263,target 9
+  49:263,target 21
+  19:257,target 24
+  22:/ shift
+  65:257,target 36
+  64:* shift
+  22:0 reduce
+  64:+ shift
+  29:(,target 1
+  30:(,target 1
+  31:276,target 11
+  67:/,target 34
+  64:- shift
+  46:271,target 40
+  62:265,target 33
+  32:259,target 6
+  32:260,target 7
+  64:/ shift
+  64:0 reduce
+  58:273,target 29
+  44:262,target 31
+  43:257 shift
+  43:260 shift
+  43:259 shift
+  40:286,target 64
+  39:286,target 63
+  0:257,target 4
+  56:264,target 26
+  26:258,target 41
+  72:258,target 12
+  54:0,target 11
+  13:261 shift
+  60:-,target 33
+  59:-,target 30
+  68:266,target 25
+  65:*,target 31
+  2:257 shift
+  36:( shift
+  2:260 shift
+  2:259 shift
+  19:274,target 24
+  20:274,target 43
+  28:-,target 2
+  65:274,target 36
+  50:^ shift
+  21:257,target 32
+  66:257,target 37
+  43:276 shift
+  36:- shift
+  32:276,target 11
+  6:258,target 23
+  63:265,target 34
+  43:279 goto
+  33:260,target 7
+  33:259,target 6
+  60:273,target 42
+  59:273,target 30
+  52:+,target 32
+  45:262,target 8
+  57:(,target 27
+  43:286 goto
+  41:286,target 65
+  2:276 shift
+  21:+,target 32
+  1:257,target 4
+  57:264,target 27
+  26:(,target 41
+  27:258,target 5
+  64:/,target 34
+  2:279 goto
+  48:257 reduce
+  2:286 goto
+  22:^ shift
+  48:258 reduce
+  21:274,target 32
+  66:274,target 37
+  48:260 reduce
+  48:259 reduce
+  44:),target 31
+  48:261 reduce
+  22:257,target 10
+  67:257,target 38
+  48:262 reduce
+  48:263 reduce
+  64:^ shift
+  48:264 reduce
+  33:276,target 11
+  51:0,target 1
+  48:265 reduce
+  64:265,target 35
+  48:266 reduce
+  34:260,target 7
+  34:259,target 6
+  18:261 reduce
+  56:-,target 26
+  62:*,target 31
+  4:266,target 22
+  19:0,target 24
+  61:273,target 42
+  51:0 reduce
+  25:-,target 2
+  18:267 shift
+  44:^,target 31
+  42:286,target 66
+  18:268 shift
+  18:269 shift
+  18:270 shift
+  48:276 reduce
+  2:257,target 4
+  18:271 shift
+  58:264,target 29
+  6:+,target 23
+  18:272 shift
+  18:273 shift
+  18:274 shift
+  55:272,target 28
+  25:266,target 48
+  54:(,target 11
+  22:274,target 43
+  67:274,target 38
+  23:( shift
+  53:263,target 13
+  23:257,target 4
+  68:257,target 25
+  23:(,target 1
+  61:/,target 34
+  34:276,target 11
+  50:271,target 40
+  19:265,target 24
+  23:- shift
+  65:265,target 36
+  65:( reduce
+  35:260,target 7
+  35:259,target 6
+  65:) reduce
+  65:* shift
+  65:+ shift
+  62:273,target 33
+  54:257 reduce
+  65:- shift
+  54:258 reduce
+  47:262,target 20
+  54:260 reduce
+  54:259 reduce
+  65:/ shift
+  54:261 reduce
+  43:286,target 67
+  65:0 reduce
+  54:262 reduce
+  54:263 reduce
+  44:270,target 31
+  44:269,target 31
+  24:257 shift
+  60:264,target 40
+  59:264,target 30
+  54:264 reduce
+  29:258,target 5
+  30:258,target 5
+  54:265 reduce
+  24:259 shift
+  24:260 shift
+  54:266 reduce
+  25:283,target 17
+  71:283,target 17
+  53:-,target 13
+  0:265,target 10
+  56:272,target 26
+  26:266,target 41
+  72:266,target 12
+  58:*,target 29
+  22:-,target 33
+  68:274,target 25
+  54:263,target 11
+  24:257,target 4
+  70:257,target 16
+  69:257,target 18
+  54:276 reduce
+  37:( shift
+  35:276,target 11
+  8:(,target 17
+  21:265,target 32
+  66:265,target 37
+  36:260,target 7
+  36:259,target 6
+  24:276 shift
+  45:+,target 32
+  37:- shift
+  6:266,target 23
+  63:273,target 34
+  24:279 goto
+  48:262,target 14
+  14:+,target 24
+  45:270,target 39
+  45:269,target 38
+  4:257,target 22
+  19:(,target 24
+  61:264,target 39
+  57:/,target 34
+  24:286 goto
+  68:),target 25
+  57:272,target 27
+  26:/,target 41
+  60:257 reduce
+  59:257 reduce
+  60:258 reduce
+  59:258 reduce
+  60:260 reduce
+  60:259 reduce
+  59:260 reduce
+  59:259 reduce
+  60:261 reduce
+  59:261 reduce
+  10:263,target 19
+  60:262 reduce
+  59:262 reduce
+  55:263,target 28
+  25:257,target 4
+  71:257,target 4
+  60:263 reduce
+  59:263 reduce
+  10:( reduce
+  29:257 shift
+  30:257 shift
+  60:264 reduce
+  59:264 reduce
+  29:258 shift
+  30:258 shift
+  60:265 reduce
+  59:265 reduce
+  44:0,target 31
+  36:276,target 11
+  29:259 shift
+  29:260 shift
+  30:259 shift
+  30:260 shift
+  60:266 reduce
+  59:266 reduce
+  52:271,target 40
+  22:265,target 10
+  67:265,target 38
+  60:267 reduce
+  59:267 reduce
+  50:-,target 33
+  49:-,target 21
+  37:260,target 7
+  37:259,target 6
+  29:262 shift
+  30:262 shift
+  60:268 shift
+  59:268 reduce
+  10:- reduce
+  29:263 shift
+  30:263 shift
+  68:^,target 25
+  60:270 shift
+  60:269 shift
+  59:270 reduce
+  59:269 reduce
+  55:*,target 28
+  13:0,target 2
+  60:271 shift
+  59:271 reduce
+  52:) shift
+  18:273,target 42
+  29:265 shift
+  30:265 shift
+  65:^ shift
+  64:273,target 35
+  60:272 shift
+  59:272 reduce
+  52:* shift
+  18:-,target 33
+  60:273 shift
+  59:273 reduce
+  52:+ shift
+  50:262,target 9
+  49:262,target 21
+  60:274 shift
+  59:274 reduce
+  52:- shift
+  4:274,target 22
+  60:276 reduce
+  59:276 reduce
+  52:/ shift
+  46:270,target 39
+  46:269,target 38
+  5:257,target 4
+  62:264,target 33
+  5:(,target 1
+  27:283,target 17
+  29:276 shift
+  30:276 shift
+  58:272,target 29
+  44:261,target 31
+  29:280 goto
+  29:279 goto
+  30:280 goto
+  30:279 goto
+  47:(,target 20
+  29:281 goto
+  30:281 goto
+  29:283 goto
+  30:283 goto
+  56:263,target 26
+  26:257,target 41
+  72:257,target 12
+  16:(,target 28
+  29:286 goto
+  30:286 goto
+  37:276,target 11
+  68:265,target 25
+  38:260,target 7
+  38:259,target 6
+  24:( shift
+  65:),target 36
+  65:257 reduce
+  19:273,target 24
+  20:273,target 42
+  65:273,target 36
+  65:258 reduce
+  0:error shift
+  65:260 reduce
+  65:259 reduce
+  24:- shift
+  72:0,target 12
+  66:( reduce
+  65:261 reduce
+  4:-,target 22
+  66:) reduce
+  65:262 reduce
+  66:* shift
+  65:263 reduce
+  35:257 shift
+  66:+ shift
+  65:264 reduce
+  6:257,target 23
+  65:265 reduce
+  63:264,target 34
+  35:260 shift
+  35:259 shift
+  66:- shift
+  65:266 reduce
+  65:267 reduce
+  46:-,target 33
+  66:/ shift
+  65:268 reduce
+  66:0 reduce
+  65:^,target 35
+  65:270 reduce
+  65:269 reduce
+  60:272,target 41
+  59:272,target 30
+  52:*,target 31
+  65:271 reduce
+  45:261,target 8
+  65:272 reduce
+  65:273 reduce
+  11:279,target 19
+  65:274 reduce
+  21:*,target 32
+  26:274,target 41
+  65:276 reduce
+  57:263,target 27
+  27:257,target 4
+  38:276,target 11
+  2:(,target 1
+  70:265,target 16
+  69:265,target 18
+  40:260,target 7
+  40:259,target 6
+  39:260,target 7
+  39:259,target 6
+  35:276 shift
+  35:279 goto
+  21:273,target 32
+  66:273,target 37
+  44:(,target 31
+  38:( shift
+  52:^ shift
+  6:274,target 23
+  38:- shift
+  35:286 goto
+  64:264,target 35
+  29:283,target 17
+  30:283,target 17
+  62:),target 33
+  4:265,target 22
+  19:/,target 24
+  20:/,target 34
+  61:272,target 41
+  71:257 shift
+  71:258 shift
+  71:260 shift
+  71:259 shift
+  68:0,target 25
+  1:-,target 2
+  71:262 shift
+  71:263 shift
+  58:263,target 29
+  41:257 shift
+  6:*,target 23
+  28:257,target 4
+  71:265 shift
+  41:260 shift
+  41:259 shift
+  40:276,target 11
+  39:276,target 11
+  55:271,target 28
+  43:-,target 2
+  25:265,target 10
+  71:265,target 10
+  41:260,target 7
+  41:259,target 6
+  11:257 shift
+  62:^,target 35
+  11:259 shift
+  11:260 shift
+  11:( shift
+  22:273,target 42
+  67:273,target 38
+  53:262,target 13
+  0:257 shift
+  71:276 shift
+  0:258 shift
+  11:- shift
+  53:( reduce
+  0:259 shift
+  0:260 shift
+  50:270,target 39
+  50:269,target 38
+  0:261 reduce
+  19:264,target 24
+  71:279 goto
+  71:280 goto
+  66:+,target 32
+  66:^ shift
+  65:264,target 36
+  0:262 shift
+  71:281 goto
+  0:263 shift
+  72:(,target 12
+  41:276 shift
+  71:283 goto
+  53:- reduce
+  0:265 shift
+  62:272,target 33
+  47:261,target 20
+  41:279 goto
+  71:286 goto
+  53:0 reduce
+  41:(,target 1
+  11:276 shift
+  44:268,target 31
+  60:263,target 40
+  59:263,target 30
+  10:(,target 19
+  11:279 goto
+  29:257,target 4
+  30:257,target 4
+  41:286 goto
+  41:276,target 11
+  0:276 shift
+  56:271,target 26
+  0:277 goto
+  26:265,target 41
+  72:265,target 12
+  58:),target 29
+  42:260,target 7
+  42:259,target 6
+  0:278 goto
+  0:280 goto
+  0:279 goto
+  11:286 goto
+  0:281 goto
+  68:273,target 25
+  0:283 goto
+  65:0,target 36
+  54:262,target 11
+  25:( shift
+  71:-,target 2
+  0:286 goto
+  21:264,target 32
+  66:264,target 37
+  40:-,target 2
+  39:-,target 2
+  25:- shift
+  67:( reduce
+  67:) reduce
+  58:^,target 35
+  45:*,target 31
+  6:265,target 23
+  67:* shift
+  63:272,target 34
+  67:+ shift
+  48:261,target 14
+  0:( shift
+  46:267 shift
+  67:- shift
+  46:268 shift
+  14:*,target 24
+  46:270 shift
+  46:269 shift
+  5:257 shift
+  67:/ shift
+  46:271 shift
+  45:268,target 37
+  67:0 reduce
+  61:263,target 39
+  46:272 shift
+  5:260 shift
+  5:259 shift
+  0:- shift
+  31:257,target 4
+  46:273 shift
+  0:281,target 16
+  63:+,target 32
+  46:274 shift
+  42:276,target 11
+  0:0 reduce
+  68:(,target 25
+  57:271,target 27
+  27:265,target 10
+  43:260,target 7
+  43:259,target 6
+  37:(,target 1
+  10:262,target 19
+  55:262,target 28
+  44:/,target 31
+  52:270,target 39
+  52:269,target 38
+  22:264,target 10
+  67:264,target 38
+  40:( shift
+  39:( shift
+  5:276 shift
+  16:284 goto
+  55:),target 28
+  5:279 goto
+  18:272,target 41
+  64:272,target 35
+  50:261,target 9
+  49:261,target 21
+  40:- shift
+  39:- shift
+  62:0,target 33
+  4:273,target 22
+  67:-,target 33
+  46:268,target 37
+  5:286 goto
+  62:263,target 33
+  32:257,target 4
+  43:276,target 11
+  36:-,target 2
+  58:271,target 29
+  22:257 reduce
+  55:^,target 35
+  44:260,target 31
+  44:259,target 31
+  22:258 reduce
+  22:259 reduce
+  22:260 reduce
+  22:261 reduce
+  52:267 shift
+  22:262 reduce
+  52:268 shift
+  22:263 reduce
+  56:262,target 26
+  52:270 shift
+  52:269 shift
+  22:264 reduce
+  52:271 shift
+  22:265 reduce
+  52:272 shift
+  22:266 reduce
+  52:273 shift
+  22:267 shift
+  60:+,target 32
+  59:+,target 30
+  52:274 shift
+  22:268 shift
+  68:264,target 25
+  22:269 shift
+  22:270 shift
+  65:(,target 36
+  22:271 shift
+  22:272 shift
+  19:272,target 24
+  20:272,target 41
+  22:273 shift
+  65:272,target 36
+  54:( reduce
+  22:274 shift
+  34:(,target 1
+  67:^ shift
+  12:0 accept
+  22:276 reduce
+  54:- reduce
+  63:263,target 34
+  33:257,target 4
+  54:0 reduce
+  44:276,target 31
+  60:271,target 40
+  59:271,target 30
+  52:),target 69
+  29:265,target 10
+  30:265,target 10
+  45:260,target 8
+  45:259,target 8
+  21:),target 32
+  26:273,target 41
+  58:0,target 29
+  57:262,target 27
+  64:-,target 33
+  57:257 reduce
+  57:258 reduce
+  57:260 reduce
+  57:259 reduce
+  27:0,target 7
+  57:261 reduce
+  57:262 reduce
+  33:-,target 2
+  57:263 reduce
+  27:257 shift
+  57:264 reduce
+  52:^,target 35
+  26:( reduce
+  27:258 shift
+  57:265 reduce
+  21:272,target 32
+  26:) reduce
+  27:259 shift
+  27:260 shift
+  66:272,target 37
+  57:266 reduce
+  26:* reduce
+  27:261 reduce
+  57:267 reduce
+  26:+ reduce
+  27:262 shift
+  57:268 reduce
+  21:^,target 35
+  27:263 shift
+  57:270 reduce
+  57:269 reduce
+  6:273,target 23
+  26:- reduce
+  68:( reduce
+  57:271 reduce
+  27:265 shift
+  68:) reduce
+  57:272 reduce
+  26:/ reduce
+  68:* reduce
+  64:263,target 35
+  57:273 reduce
+  34:257,target 4
+  26:0 reduce
+  68:+ reduce
+  57:274 reduce
+  56:+,target 26
+  1:( shift
+  68:- reduce
+  62:(,target 33
+  57:276 reduce
+  45:276,target 8
+  4:264,target 22
+  61:271,target 40
+  68:/ reduce
+  68:0 reduce
+  1:- shift
+  31:(,target 1
+  68:/,target 25
+  27:276 shift
+  27:277 goto
+  58:262,target 29
+  6:),target 23
+  27:278 goto
+  27:279 goto
+  27:280 goto
+  27:281 goto
+  55:270,target 28
+  55:269,target 28
+  27:283 goto
+  27:286 goto
+  22:272,target 41
+  67:272,target 38
+  53:261,target 13
+  55:0,target 28
+  41:( shift
+  63:257 reduce
+  61:-,target 33
+  6:^,target 23
+  63:258 reduce
+  50:268,target 37
+  19:263,target 24
+  66:*,target 31
+  65:263,target 36
+  63:260 reduce
+  63:259 reduce
+  35:257,target 4
+  63:261 reduce
+  41:- shift
+  63:262 reduce
+  29:-,target 2
+  30:-,target 2
+  63:263 reduce
+  33:257 shift
+  63:264 reduce
+  62:271,target 33
+  63:265 reduce
+  47:260,target 20
+  47:259,target 20
+  33:260 shift
+  33:259 shift
+  63:266 reduce
+  63:267 reduce
+  63:268 reduce
+  63:270 reduce
+  63:269 reduce
+  44:267,target 31
+  63:271 reduce
+  60:262,target 40
+  59:262,target 30
+  63:272 reduce
+  63:273 reduce
+  25:281,target 16
+  71:281,target 16
+  63:274 reduce
+  0:263,target 9
+  56:270,target 26
+  56:269,target 26
+  26:264,target 41
+  72:264,target 12
+  63:276 reduce
+  58:(,target 29
+  22:+,target 32
+  68:272,target 25
+  27:(,target 1
+  65:/,target 34
+  54:261,target 11
+  33:276 shift
+  26:^ shift
+  33:279 goto
+  21:263,target 32
+  66:263,target 37
+  55:( reduce
+  36:257,target 4
+  55:) reduce
+  68:^ reduce
+  55:* reduce
+  13:0 reduce
+  55:+ reduce
+  47:276,target 20
+  45:),target 8
+  6:264,target 23
+  63:271,target 34
+  33:286 goto
+  55:- reduce
+  48:260,target 14
+  48:259,target 14
+  55:/ reduce
+  55:0 reduce
+  45:267,target 36
+  68:257 reduce
+  61:262,target 39
+  57:-,target 27
+  68:258 reduce
+  0:280,target 15
+  0:279,target 14
+  11:286,target 26
+  68:260 reduce
+  68:259 reduce
+  63:*,target 31
+  21:0,target 32
+  68:261 reduce
+  68:262 reduce
+  57:270,target 27
+  57:269,target 27
+  26:-,target 41
+  68:263 reduce
+  38:257 shift
+  68:264 reduce
+  45:^,target 35
+  68:265 reduce
+  38:260 shift
+  38:259 shift
+  68:266 reduce
+  68:267 reduce
+  10:261,target 19
+  68:268 reduce
+  55:261,target 28
+  68:270 reduce
+  68:269 reduce
+  68:271 reduce
+  68:272 reduce
+  27:( shift
+  68:273 reduce
+  52:268,target 37
+  22:263,target 10
+  68:274 reduce
+  67:263,target 38
+  50:+,target 32
+  37:257,target 4
+  68:276 reduce
+  55:(,target 28
+  48:276,target 14
+  18:271,target 40
+  27:- shift
+  70:( reduce
+  69:( reduce
+  64:271,target 35
+  18:+,target 32
+  50:260,target 9
+  50:259,target 9
+  49:260,target 21
+  49:259,target 21
+  24:(,target 1
+  27:0 reduce
+  62:/,target 34
+  38:276 shift
+  4:272,target 22
+  2:( shift
+  70:- reduce
+  69:- reduce
+  46:267,target 36
+  62:262,target 33
+  38:279 goto
+  1:279,target 19
+  2:- shift
+  27:281,target 16
+  58:270,target 29
+  58:269,target 29
+  6:0,target 23
+  44:258,target 31
+  38:286 goto
+  56:261,target 26
+  48:0,target 14
+  54:-,target 11
+  60:*,target 31
+  59:*,target 30
+  68:263,target 25
+  38:257,target 4
+  23:-,target 2
+  44:257 reduce
+  42:( shift
+  50:276,target 9
+  49:276,target 21
+  44:258 reduce
+  19:271,target 24
+  20:271,target 40
+  65:271,target 36
+  55:^ shift
+  44:260 reduce
+  44:259 reduce
+  44:261 reduce
+  44:262 reduce
+  4:+,target 22
+  44:263 reduce
+  42:- shift
+  44:264 reduce
+  9:(,target 15
+  44:265 reduce
+  63:262,target 34
+  44:266 reduce
+  14:261 reduce
+  44:267 reduce
+  2:279,target 19
+  46:+,target 32
+  44:268 reduce
+  44:270 reduce
+  44:269 reduce
+  60:270,target 39
+  60:269,target 38
+  59:270,target 30
+  59:269,target 30
+  44:271 reduce
+  45:258,target 8
+  44:272 reduce
+  44:273 reduce
+  3:261 reduce
+  44:274 reduce
+  21:(,target 32
+  26:272,target 41
+  58:/,target 29
+  44:276 reduce
+  57:261,target 27
+  23:279,target 19
+  70:263,target 16
+  69:263,target 18
+  40:257,target 4
+  39:257,target 4
+  3:0,target 6
+  14:* reduce
+  14:+ reduce
+  21:271,target 32
+  66:271,target 37
+  14:- reduce
+  56:( reduce
+  56:) reduce
+  45:0,target 8
+  6:272,target 23
+  14:/ reduce
+  56:* shift
+  14:0 reduce
+  56:+ reduce
+  64:262,target 35
+  56:*,target 31
+  56:- reduce
+  14:0,target 4
+  29:281,target 16
+  30:281,target 16
+  56:/ shift
+  4:263,target 22
+  19:-,target 24
+  20:-,target 33
+  61:270,target 39
+  61:269,target 38
+  56:0 reduce
+  50:257 reduce
+  49:257 reduce
+  50:258 reduce
+  49:258 reduce
+  50:260 reduce
+  50:259 reduce
+  49:260 reduce
+  49:259 reduce
+  50:261 reduce
+  49:261 reduce
+  50:262 reduce
+  49:262 reduce
+  50:263 reduce
+  49:263 reduce
+  13:261,target 27
+  19:257 reduce
+  58:261,target 29
+  50:264 reduce
+  6:(,target 23
+  19:258 reduce
+  50:265 reduce
+  49:265 reduce
+  19:259 reduce
+  19:260 reduce
+  50:266 reduce
+  49:266 reduce
+  19:261 reduce
+  24:279,target 19
+  27:error shift
+  50:267 shift
+  19:262 reduce
+  55:268,target 28
+  50:268 shift
+  19:263 reduce
+  25:263,target 9
+  71:263,target 9
+  50:270 shift
+  50:269 shift
+  41:257,target 4
+  19:264 reduce
+  50:271 shift
+  48:(,target 14
+  19:265 reduce
+  50:272 shift
+  19:266 reduce
+  50:273 shift
+  19:267 reduce
+  20:267 shift
+  22:271,target 40
+  67:271,target 38
+  50:274 shift
+  19:268 reduce
+  20:268 shift
+  28:( shift
+  53:260,target 13
+  53:259,target 13
+  17:(,target 28
+  19:269 reduce
+  19:270 reduce
+  20:269 shift
+  20:270 shift
+  55:/,target 28
+  50:276 reduce
+  49:276 reduce
+  19:271 reduce
+  20:271 shift
+  19:272 reduce
+  20:272 shift
+  19:273 reduce
+  20:273 shift
+  50:267,target 36
+  19:262,target 24
+  19:274 reduce
+  20:274 shift
+  28:- shift
+  71:( shift
+  66:),target 37
+  65:262,target 36
+  19:276 reduce
+  0:0,target 7
+  62:270,target 33
+  62:269,target 33
+  71:- shift
+  47:258,target 20
+  5:-,target 2
+  44:266,target 31
+  14:261,target 4
+  60:261,target 40
+  59:261,target 30
+  47:-,target 20
+  3:0 reduce
+  10:285,target 25
+  25:280,target 49
+  25:279,target 19
+  71:279,target 19
+  71:280,target 72
+  66:^,target 35
+  0:262,target 8
+  56:268,target 26
+  26:263,target 41
+  72:263,target 12
+  42:257,target 4
+  55:257 reduce
+  55:258 reduce
+  22:*,target 31
+  55:260 reduce
+  55:259 reduce
+  53:276,target 13
+  68:271,target 25
+  55:261 reduce
+  55:262 reduce
+  54:260,target 11
+  54:259,target 11
+  55:263 reduce
+  25:257 shift
+  55:264 reduce
+  25:258 shift
+  55:265 reduce
+  43:( shift
+  25:259 shift
+  25:260 shift
+  55:266 reduce
+  21:262,target 32
+  25:261 shift
+  66:262,target 37
+  56:^ shift
+  55:267 reduce
+  25:262 shift
+  55:268 reduce
+  5:279,target 19
+  25:263 shift
+  55:270 reduce
+  55:269 reduce
+  55:271 reduce
+  45:(,target 8
+  43:- shift
+  6:263,target 23
+  25:265 shift
+  63:270,target 34
+  63:269,target 34
+  55:272 reduce
+  25:266 shift
+  55:273 reduce
+  48:258,target 14
+  55:274 reduce
+  55:276 reduce
+  52:/,target 34
+  45:266,target 8
+  15:261,target 5
+  61:261,target 39
+  0:278,target 13
+  63:),target 34
+  21:/,target 32
+  25:276 shift
+  57:268,target 27
+  27:263,target 9
+  43:257,target 4
+  25:280 goto
+  25:279 goto
+  2:-,target 2
+  25:281 goto
+  54:276,target 11
+  10:259,target 19
+  10:260,target 19
+  25:283 goto
+  55:260,target 28
+  55:259,target 28
+  25:286 goto
+  44:-,target 31
+  52:267,target 36
+  22:262,target 10
+  67:262,target 38
+  63:^,target 35
+  50:*,target 31
+  57:( reduce
+  61:257 reduce
+  57:) reduce
+  18:269,target 38
+  18:270,target 39
+  64:270,target 35
+  64:269,target 35
+  61:258 reduce
+  57:* shift
+  15:0 reduce
+  18:*,target 31
+  61:260 reduce
+  61:259 reduce
+  57:+ reduce
+  50:258,target 9
+  49:258,target 21
+  61:261 reduce
+  61:262 reduce
+  57:- reduce
+  4:271,target 22
+  61:263 reduce
+  31:257 shift
+  67:+,target 32
+  61:264 reduce
+  57:/ shift
+  0:(,target 1
+  62:261,target 33
+  61:265 reduce
+  57:0 reduce
+  31:259 shift
+  31:260 shift
+  61:266 reduce
+  61:267 reduce
+  27:279,target 14
+  27:280,target 15
+  61:268 reduce
+  61:270 shift
+  61:269 shift
+  58:268,target 29
+  6:/,target 23
+  61:271 shift
+  44:257,target 31
+  42:(,target 1
+  61:272 shift
+  61:273 shift
+  10:276,target 19
+  61:274 shift
+  55:276,target 28
+  11:259,target 6
+  11:260,target 7
+  11:(,target 1
+  61:276 reduce
+  56:260,target 26
+  56:259,target 26
+  60:),target 40
+  59:),target 30
+  68:262,target 25
+  29:( shift
+  30:( shift
+  31:276 shift
+  19:269,target 24
+  19:270,target 24
+  20:269,target 38
+  20:270,target 39
+  31:279 goto
+  66:0,target 37
+  65:270,target 36
+  65:269,target 36
+  29:- shift
+  30:- shift
+  72:-,target 12
+  72:( reduce
+  4:*,target 22
+  47:266,target 20
+  4:( reduce
+  31:286 goto
+  63:261,target 34
+  41:-,target 2
+  4:) reduce
+  72:- reduce
+  4:* reduce
+  60:^,target 35
+  59:^,target 35
+  46:*,target 31
+  4:+ reduce
+  28:279,target 19
+  44:274,target 31
+  72:0 reduce
+  60:268,target 37
+  59:268,target 30
+  4:- reduce
+  10:-,target 19
+  29:263,target 9
+  30:263,target 9
+  66:257 reduce
+  45:257,target 8
+  66:258 reduce
+  4:/ reduce
+  66:260 reduce
+  66:259 reduce
+  4:0 reduce
+  11:276,target 11
+  66:261 reduce
+  56:276,target 26
+  26:271,target 41
+  66:262 reduce
+  66:263 reduce
+  57:260,target 27
+  57:259,target 27
+  36:257 shift
+  66:264 reduce
+  64:+,target 32
+  66:265 reduce
+  36:260 shift
+  36:259 shift
+  70:(,target 16
+  69:(,target 18
+  66:266 reduce
+  66:267 reduce
+  70:262,target 16
+  69:262,target 18
+  66:268 reduce
+  66:270 reduce
+  66:269 reduce
+  66:271 reduce
+  38:(,target 1
+  66:272 reduce
+  21:269,target 32
+  21:270,target 32
+  66:273 reduce
+  66:270,target 37
+  66:269,target 37
+  44:( reduce
+  66:274 reduce
+  44:) reduce
+  57:^ shift
+  44:* reduce
+  66:276 reduce
+  45:/,target 34
+  44:+ reduce
+  6:271,target 23
+  48:266,target 14
+  44:- reduce
+  18:261,target 3
+  64:261,target 35
+  56:),target 26
+  44:/ reduce
+  14:/,target 24
+  44:0 reduce
+  36:276 shift
+  29:280,target 53
+  29:279,target 19
+  30:280,target 54
+  30:279,target 19
+  45:274,target 43
+  4:262,target 22
+  61:268,target 39
+  36:279 goto
+  0:286,target 18
+  63:0,target 34
+  68:-,target 25
+  57:276,target 27
+  58:260,target 29
+  58:259,target 29
+  36:286 goto
+  37:-,target 2
+  56:^,target 35
+  55:267,target 28
+  25:262,target 8
+  71:262,target 8
+  72:257 reduce
+  16:( shift
+  72:258 reduce
+  22:269,target 38
+  22:270,target 39
+  72:260 reduce
+  72:259 reduce
+  67:270,target 38
+  67:269,target 38
+  72:261 reduce
+  53:258,target 13
+  72:262 reduce
+  72:263 reduce
+  42:257 shift
+  72:264 reduce
+  61:+,target 32
+  58:( reduce
+  72:265 reduce
+  58:) reduce
+  50:266,target 9
+  49:266,target 21
+  42:260 shift
+  42:259 shift
+  19:261,target 24
+  27:error,target 3
+  72:266 reduce
+  66:(,target 37
+  65:261,target 36
+  58:* reduce
+  58:+ reduce
+  31:279,target 19
+  58:- reduce
+  46:274,target 43
+  4:^ reduce
+  62:268,target 33
+  35:(,target 1
+  58:/ reduce
+  47:257,target 20
+  1:286,target 20
+  58:0 reduce
+  58:276,target 29
+  1:257 shift
+  72:276 reduce
+  44:265,target 31
+  60:260,target 40
+  60:259,target 40
+  59:260,target 30
+  59:259,target 30
+  1:260 shift
+  1:259 shift
+  0:261,target 7
+  56:267,target 26
+  42:276 shift
+  26:262,target 41
+  72:262,target 12
+  42:279 goto
+  60:0,target 40
+  59:0,target 30
+  68:270,target 25
+  68:269,target 25
+  65:-,target 33
+  54:258,target 11
+  31:( shift
+  44:^ reduce
+  42:286 goto
+  34:-,target 2
+  21:261,target 32
+  66:261,target 37
+  1:276 shift
+  31:- shift
+  32:279,target 19
+  6:262,target 23
+  1:279 goto
+  63:268,target 34
+  48:257,target 14
+  5:( shift
+  2:286,target 21
+  22:^,target 35
+  60:276,target 40
+  59:276,target 30
+  47:257 reduce
+  45:265,target 8
+  1:286 goto
+  61:260,target 39
+  61:259,target 39
+  57:+,target 27
+  47:258 reduce
+  5:- shift
+  47:260 reduce
+  47:259 reduce
+  0:277,target 12
+  63:(,target 34
+  47:261 reduce
+  47:262 reduce
+  57:267,target 27
+  47:263 reduce
+  26:+,target 41
+  27:262,target 8
+  47:265 reduce
+  23:286,target 45
+  32:(,target 1
+  47:266 reduce
+  10:258,target 19
+  55:258,target 28
+  6:257 reduce
+  6:258 reduce
+  6:260 reduce
+  6:259 reduce
+  6:261 reduce
+  6:262 reduce
+  22:261,target 10
+  67:261,target 38
+  45:( reduce
+  6:263 reduce
+  47:276 reduce
+  45:) reduce
+  6:264 reduce
+  58:^ shift
+  45:* shift
+  33:279,target 19
+  6:265 reduce
+  45:+ shift
+  6:266 reduce
+  18:268,target 37
+  64:268,target 35
+  6:267 reduce
+  56:0,target 26
+  50:257,target 9
+  49:257,target 21
+  45:- shift
+  6:268 reduce
+  6:270 reduce
+  6:269 reduce
+  62:-,target 33
+  45:/ shift
+  6:271 reduce
+  4:270,target 22
+  4:269,target 22
+  61:276,target 39
+  45:0 reduce
+  6:272 reduce
+  67:*,target 31
+  6:273 reduce
+  62:260,target 33
+  62:259,target 33
+  6:274 reduce
+  31:-,target 2
+  6:276 reduce
+  27:278,target 13
+  50:^,target 35
+  17:284 goto
+  58:267,target 29
+  24:286,target 46
+  18:^,target 35
+  56:258,target 26
+  53:257 reduce
+  53:258 reduce
+  53:260 reduce
+  53:259 reduce
+  17:( shift
+  60:(,target 40
+  59:(,target 30
+  53:266,target 13
+  53:261 reduce
+  68:261,target 25
+  53:262 reduce
+  53:263 reduce
+  23:257 shift
+  53:264 shift
+  34:279,target 19
+  53:265 reduce
+  50:274,target 43
+  19:268,target 24
+  20:268,target 37
+  23:259 shift
+  23:260 shift
+  28:(,target 1
+  66:/,target 34
+  65:268,target 36
+  60:( reduce
+  59:( reduce
+  53:266 reduce
+  60:) reduce
+  59:) reduce
+  60:* shift
+  59:* reduce
+  4:),target 22
+  60:+ shift
+  59:+ reduce
+  62:276,target 33
+  60:- shift
+  59:- reduce
+  47:265,target 20
+  63:260,target 34
+  63:259,target 34
+  60:/ shift
+  59:/ reduce
+  60:0 reduce
+  59:0 reduce
+  46:),target 68
+  6:=,target 23
+  53:276 reduce
+  44:273,target 31
+  3:261,target 6
+  60:267,target 40
+  59:267,target 30
+  29:262,target 8
+  30:262,target 8
+  25:286,target 50
+  71:286,target 50
+  53:0,target 13
+  53:282 goto
+  23:276 shift
+  26:269,target 41
+  26:270,target 41
+  58:-,target 29
+  4:^,target 22
+  57:258,target 27
+  64:*,target 31
+  22:0,target 10
+  23:279 goto
+  27:-,target 2
+  54:266,target 11
+  46:^,target 35
+  35:279,target 19
+  23:286 goto
+  32:( shift
+  21:268,target 32
+  66:268,target 37
+  45:^ shift
+  5:286,target 22
+  6:270,target 23
+  6:269,target 23
+  32:- shift
+  63:276,target 34
+  58:257 reduce
+  58:258 reduce
+  48:265,target 14
+  64:260,target 35
+  64:259,target 35
+  58:260 reduce
+  58:259 reduce
+  58:261 reduce
+  56:(,target 26
+  6:( reduce
+  58:262 reduce
+  6:) reduce
+  58:263 reduce
+  45:273,target 42
+  6:* reduce
+  4:261,target 22
+  19:+,target 24
+  20:+,target 32
+  28:257 shift
+  61:267,target 39
+  58:264 reduce
+  6:+ reduce
+  58:265 reduce
+  25:(,target 1
+  28:259 shift
+  28:260 shift
+  63:/,target 34
+  58:266 reduce
+  6:- reduce
+  58:267 reduce
+  58:268 reduce
+  6:/ reduce
+  58:270 reduce
+  58:269 reduce
+  6:0 reduce
+  58:271 reduce
+  58:258,target 29
+  58:272 reduce
+  58:273 reduce
+  58:274 reduce
+  10:266,target 19
+  55:266,target 28
+  25:261,target 47
+  58:276 reduce
+  36:279,target 19
+  52:274,target 43
+  22:268,target 37
+  67:268,target 38
+  50:0,target 9
+  53:257,target 13
+  28:276 shift
+  55:-,target 28
+  46:) shift
+  6:= shift
+  64:276,target 35
+  61:*,target 31
+  60:^ shift
+  59:^ shift
+  46:* shift
+  18:0,target 3
+  28:279 goto
+  50:265,target 9
+  49:265,target 21
+  46:+ shift
+  19:259,target 24
+  19:260,target 24
+  65:260,target 36
+  65:259,target 36
+  24:-,target 2
+  46:- shift
+  46:273,target 42
+  46:/ shift
+  62:267,target 33
+  28:286 goto
+  27:286,target 18
+  44:264,target 31
+  64:257 reduce
+  60:258,target 40
+  59:258,target 30
+  64:258 reduce
+  64:260 reduce
+  64:259 reduce
+  64:261 reduce
+  53:(,target 13
+  0:259,target 6
+  0:260,target 7
+  64:262 reduce
+  56:266,target 26
+  26:261,target 41
+  72:261,target 12
+  64:263 reduce
+  34:257 shift
+  64:264 reduce
+  64:265 reduce
+  37:279,target 19
+  34:260 shift
+  34:259 shift
+  22:(,target 10
+  64:266 reduce
+  60:/,target 34
+  59:/,target 30
+  68:268,target 25
+  64:267 reduce
+  64:268 reduce
+  54:257,target 11
+  64:270 reduce
+  64:269 reduce
+  18:* shift
+  64:271 reduce
+  18:+ shift
+  19:276,target 24
+  65:276,target 36
+  64:272 reduce
+  64:273 reduce
+  18:- shift
+  21:259,target 32
+  21:260,target 32
+  66:260,target 37
+  66:259,target 37
+  64:274 reduce
+  61:( reduce
+  4:0,target 22
+  61:) reduce
+  16:284,target 29
+  18:/ shift
+  64:276 reduce
+  61:* shift
+  18:0 reduce
+  61:+ shift
+  6:261,target 23
+  63:267,target 34
+  61:- shift
+  6:^ reduce
+  28:286,target 52
+  61:/ shift
+  34:276 shift
+  61:0 reduce
+  52:-,target 33
+  45:264,target 8
+  61:258,target 39
+  57:*,target 31
+  34:279 goto
+  15:0,target 5
+  0:276,target 11
+  21:-,target 32
+  1:260,target 7
+  1:259,target 6
+  57:266,target 27
+  26:*,target 41
+  27:261,target 7
+  34:286 goto
+  38:279,target 19
+  7:(,target 24
+  10:257,target 19
+  55:257,target 28
+  70:257 reduce
+  69:257 reduce
+  21:276,target 32
+  70:258 reduce
+  69:258 reduce
+  66:276,target 37
+  44:+,target 31
+  33:( shift
+  70:260 reduce
+  70:259 reduce
+  69:260 reduce
+  69:259 reduce
+  22:259,target 10
+  22:260,target 10
+  67:260,target 38
+  67:259,target 38
+  50:(,target 9
+  49:(,target 21
+  46:^ shift
+  70:262 reduce
+  69:262 reduce
+  17:284,target 30
+  70:263 reduce
+  69:263 reduce
+  40:257 shift
+  39:257 shift
+  33:- shift
+  18:267,target 36
+  70:265 reduce
+  69:265 reduce
+  64:267,target 35
+  40:260 shift
+  40:259 shift
+  39:260 shift
+  39:259 shift
+  56:/,target 34
+  29:286,target 50
+  30:286,target 50
+  4:268,target 22
+  7:( shift
+  10:257 reduce
+  10:258 reduce
+  67:),target 38
+  10:259 reduce
+  10:260 reduce
+  62:258,target 33
+  10:261 reduce
+  1:276,target 11
+  10:262 reduce
+  10:263 reduce
+  27:277,target 51
+  2:260,target 7
+  2:259,target 6
+  70:276 reduce
+  69:276 reduce
+  58:266,target 29
+  6:-,target 23
+  10:265 reduce
+  10:266 reduce
+  40:279,target 19
+  39:279,target 19
+  55:274,target 28
+  40:276 shift
+  39:276 shift
+  11:257,target 4
+  56:257,target 26
+  48:-,target 14
+  67:^,target 35
+  40:279 goto
+  39:279 goto
+  12:0,target 0
+  22:276,target 10
+  67:276,target 38
+  18:^ shift
+  53:265,target 13
+  10:276 reduce
+  23:259,target 6
+  23:260,target 7
+  68:260,target 25
+  68:259,target 25
+  47:( reduce
+  50:273,target 42
+  40:286 goto
+  39:286 goto
+  19:267,target 24
+  20:267,target 36
+  65:267,target 36
+  61:^ shift
+  4:(,target 22
+  31:286,target 55
+  47:- reduce
+  10:285 goto
+  63:258,target 34
+  2:276,target 11
+  44:272,target 31
+  60:266,target 40
+  59:266,target 30
+  45:257 reduce
+  45:258 reduce
+  45:260 reduce
+  45:259 reduce
+  45:261 reduce
+  41:279,target 19
+  56:274,target 26
+  45:262 reduce
+  26:268,target 41
+  45:263 reduce
+  57:257,target 27
+  45:264 reduce
+  64:),target 35
+  45:265 reduce
+  22:/,target 34
+  53:282,target 71
+  45:266 reduce
+  15:261 reduce
+  23:276,target 11
+  68:276,target 25
+  45:267 shift
+  54:265,target 11
+  45:268 shift
+  24:259,target 6
+  24:260,target 7
+  70:260,target 16
+  70:259,target 16
+  69:260,target 18
+  69:259,target 18
+  45:270 shift
+  45:269 shift
+  4:257 reduce
+  19:( reduce
+  45:271 shift
+  4:258 reduce
+  19:) reduce
+  20:) shift
+  45:272 shift
+  4:260 reduce
+  4:259 reduce
+  19:* reduce
+  20:* shift
+  45:273 shift
+  4:261 reduce
+  19:+ reduce
+  20:+ shift
+  21:267,target 32
+  66:267,target 37
+  45:274 shift
+  4:262 reduce
+  4:263 reduce
+  19:- reduce
+  20:- shift
+  62:( reduce
+  45:276 reduce
+  4:264 reduce
+  32:286,target 56
+  62:) reduce
+  45:-,target 33
+  6:268,target 23
+  4:265 reduce
+  19:/ reduce
+  20:/ shift
+  62:* shift
+  4:266 reduce
+  19:0 reduce
+  64:^,target 35
+  62:+ shift
+  48:264,target 14
+  4:267 reduce
+  64:258,target 35
+  4:268 reduce
+  62:- shift
+  4:270 reduce
+  4:269 reduce
+  14:-,target 24
+  4:271 reduce
+  62:/ shift
+  45:272,target 41
+  4:272 reduce
+  4:260,target 22
+  4:259,target 22
+  19:*,target 24
+  20:*,target 31
+  62:0 reduce
+  61:266,target 39
+  4:273 reduce
+  4:274 reduce
+  42:279,target 19
+  4:276 reduce
+  68:+,target 25
+  57:274,target 27
+  1:(,target 1
+  58:257,target 29
+  24:276,target 11
+  70:276,target 16
+  69:276,target 18
+  10:265,target 19
+  55:265,target 28
+  43:(,target 1
+  25:259,target 6
+  25:260,target 7
+  71:260,target 7
+  71:259,target 6
+  52:273,target 42
+  22:267,target 36
+  67:267,target 38
+  50:/,target 34
+  34:( shift
+  33:286,target 57
+  21:257 reduce
+  21:258 reduce
+  61:),target 39
+  18:/,target 34
+  21:259 reduce
+  21:260 reduce
+  50:264,target 9
+  34:- shift
+  19:258,target 24
+  21:261 reduce
+  65:258,target 36
+  0:error,target 3
+  21:262 reduce
+  4:276,target 22
+  21:263 reduce
+  21:264 reduce
+  67:0,target 38
+  46:272,target 41
+  5:260,target 7
+  5:259,target 6
+  0:-,target 2
+  8:( reduce
+  21:265 reduce
+  62:266,target 33
+  21:266 reduce
+  21:267 reduce
+  21:268 reduce
+  43:279,target 19
+  21:269 reduce
+  21:270 reduce
+  58:274,target 29
+  21:271 reduce
+  44:263,target 31
+  42:-,target 2
+  21:272 reduce
+  60:257,target 40
+  59:257,target 30
+  21:273 reduce
+  61:^,target 35
+  21:274 reduce
+  25:276,target 11
+  71:276,target 11
+  0:258,target 5
+  11:-,target 2
+  21:276 reduce
+  56:265,target 26
+  26:259,target 41
+  26:260,target 41
+  72:260,target 12
+  72:259,target 12
+  68:267,target 25
+  19:^ reduce
+  20:^ shift
+  65:+,target 32
+  34:286,target 58
+  71:(,target 1
+  48:( reduce
+  21:258,target 32
+}
+array set ::yyrules {
+  9,l 280
+  11,l 280
+  32,l 286
+  6,l 278
+  28,l 286
+  3,l 278
+  25,l 286
+  0,l 287
+  22,l 286
+  18,l 284
+  40,l 286
+  39,l 286
+  15,l 281
+  36,l 286
+  12,l 280
+  33,l 286
+  7,l 278
+  29,l 286
+  30,l 286
+  4,l 278
+  26,l 286
+  1,l 277
+  23,l 286
+  19,l 285
+  20,l 285
+  41,l 286
+  16,l 282
+  37,l 286
+  13,l 280
+  34,l 286
+  8,l 279
+  10,l 280
+  31,l 286
+  5,l 278
+  27,l 286
+  2,l 277
+  24,l 286
+  21,l 285
+  17,l 283
+  38,l 286
+  14,l 280
+  35,l 286
+}
+array set ::yyrules {
+  12,dc 5
+  26,dc 3
+  3,dc 1
+  41,dc 2
+  18,dc 3
+  33,dc 3
+  9,dc 1
+  11,dc 3
+  25,dc 4
+  2,dc 1
+  40,dc 3
+  39,dc 3
+  17,dc 1
+  32,dc 2
+  8,dc 3
+  10,dc 2
+  24,dc 1
+  1,dc 3
+  38,dc 3
+  16,dc 1
+  31,dc 3
+  7,dc 0
+  23,dc 1
+  0,dc 1
+  37,dc 3
+  15,dc 1
+  29,dc 3
+  30,dc 3
+  6,dc 1
+  22,dc 1
+  36,dc 3
+  14,dc 3
+  28,dc 3
+  5,dc 1
+  21,dc 2
+  35,dc 3
+  13,dc 3
+  27,dc 3
+  4,dc 1
+  19,dc 0
+  20,dc 2
+  34,dc 3
+}
+array set ::yyrules {
+  41,line 117
+  7,line 67
+  37,line 113
+  4,line 64
+  34,line 110
+  1,line 59
+  31,line 107
+  27,line 103
+  24,line 100
+  21,line 95
+  17,line 87
+  14,line 78
+  11,line 75
+  9,line 73
+  40,line 116
+  39,line 115
+  6,line 66
+  36,line 112
+  3,line 63
+  33,line 109
+  29,line 105
+  30,line 106
+  26,line 102
+  23,line 99
+  19,line 93
+  20,line 94
+  16,line 84
+  13,line 77
+  10,line 74
+  8,line 70
+  38,line 114
+  5,line 65
+  35,line 111
+  2,line 60
+  32,line 108
+  28,line 104
+  25,line 101
+  22,line 98
+  18,line 90
+  15,line 81
+  12,line 76
+}
+proc yyparse {} {
+    set yystate_stack {0}
+    set yyvalue_stack {{}}
+    set yytoken ""
+    set yyaccepted 0
+    while {$yyaccepted == 0} {
+        set yystate [lindex $yystate_stack end]
+        if {$yytoken == ""} {
+            set ::yylval ""
+            set yytoken [yylex]
+            set yybuflval $::yylval
+        }
+        if {![info exists ::yytable($yystate:$yytoken)]} {
+            # pop off states until error token accepted
+            while {[llength $yystate_stack] > 0 &&  ![info exists ::yytable($yystate:error)]} {
+                set yystate_stack [lrange $yystate_stack 0 end-1]
+                set yyvalue_stack [lrange $yyvalue_stack 0  [expr {[llength $yystate_stack] - 1}]]
+                set yystate [lindex $yystate_stack end]
+            }
+            if {[llength $yystate_stack] == 0} {
+                yyerror "parse error"
+                return 1
+            }
+            lappend yystate_stack [set yystate $::yytable($yystate:error,target)]
+            lappend yyvalue_stack {}
+            # consume tokens until it finds an acceptable one
+            while {![info exists ::yytable($yystate:$yytoken)]} {
+                if {$yytoken == 0} {
+                    yyerror "end of file while recovering from error"
+                    return 1
+                }
+                set ::yylval {}
+                set yytoken [yylex]
+                set yybuflval $::yylval
+            }
+            continue
+        }
+        switch -- $::yytable($yystate:$yytoken) {
+            shift {
+                lappend yystate_stack $::yytable($yystate:$yytoken,target)
+                lappend yyvalue_stack $yybuflval
+                set yytoken ""
+            }
+            reduce {
+                set yyrule $::yytable($yystate:$yytoken,target)
+                set yyl $::yyrules($yyrule,l)
+                if {[info exists ::yyrules($yyrule,e)]} {
+                    set yydc $::yyrules($yyrule,e)
+                } else {
+                    set yydc $::yyrules($yyrule,dc)
+                }
+                set yystackpointer [expr {[llength $yystate_stack]-$yydc}]
+                yysetupvalues $yyvalue_stack $yystackpointer $yydc
+                set _ $1
+                set ::yylval [lindex $yyvalue_stack end]
+                switch -- $yyrule {
+                    3 {  puts " = [asm]"  }
+                    4 {  asm  }
+                    5 {  asm  }
+                    6 {  puts " -- error"  }
+                    8 {  code push $1 ; code push ::mem ; code reverse 3 ; code storeArrayStk  }
+                    9 {  code pop  }
+                    10 {  code push puts ; code reverse 2 ; code invokeStk 2 ; code pop }
+                    11 {  code jump bs_[curblki] ; code label bf_[curblki] ; endblk   }
+                    12 {  code label be_[curblki] ; endblk  }
+                    13 {  code label bf_[curblki] ; endblk  }
+                    15 {  startblk if  }
+                    16 {  code jump be_[curblki] ; code label bf_[curblki]  }
+                    17 {  startblk while ; code label bs_[curblki]  }
+                    18 {  code jumpFalse bf_[curblki] ; code label bt_[curblki]  }
+                    22 {  code push $1  }
+                    23 {  code push ::mem ; code push $1 ; code loadArrayStk  }
+                    25 {  code push ::tcl::mathfunc::$1 ; code reverse 2 ; code invokeStk 2  }
+                    26 {  code add  }
+                    27 {  code sub  }
+                    28 {  code mult  }
+                    29 {  code div  }
+                    30 {  code expon  }
+                    32 {  code uminus  }
+                    33 {  code gt  }
+                    34 {  code ge  }
+                    35 {  code lt  }
+                    36 {  code le  }
+                    37 {  code eq  }
+                    38 {  code neq  }
+                    39 {  code land  }
+                    40 {  code lor  }
+                    41 {  code not  }
+                }
+                yyunsetupvalues $yydc
+                # pop off tokens from the stack if normal rule
+                if {![info exists ::yyrules($yyrule,e)]} {
+                    incr yystackpointer -1
+                    set yystate_stack [lrange $yystate_stack 0 $yystackpointer]
+                    set yyvalue_stack [lrange $yyvalue_stack 0 $yystackpointer]
+                }
+                # now do the goto transition
+                lappend yystate_stack $::yytable([lindex $yystate_stack end]:$yyl,target)
+                lappend yyvalue_stack $_
+            }
+            accept {
+                set yyaccepted 1
+            }
+            goto -
+            default {
+                puts stderr "Internal parser error: illegal command $::yytable($yystate:$yytoken)"
+                return 2
+            }
+        }
+    }
+    return 0
+}
+## ==========> source hoc5.fcl.tcl  (start)
+## ==========> source hoc5.tac.tab.tcl  (start)
+set ::NUMBER 257
+set ::PRINT 258
+set ::VAR 259
+set ::BLTIN 260
+set ::NEWLINE 261
+set ::WHILE 262
+set ::IF 263
+set ::ELSE 264
+set ::LBRACKET 265
+set ::RBRACKET 266
+set ::OR 267
+set ::AND 268
+set ::GT 269
+set ::GE 270
+set ::LT 271
+set ::LE 272
+set ::EQ 273
+set ::NE 274
+set ::UNARYMINUS 275
+set ::NOT 276
+set ::yylval {}
+## ==========> source hoc5.tac.tab.tcl  (end)
+proc yywrap {} {
+    return 1
+}
+proc ECHO {{s ""}} {
+    if {$s == ""} {
+        puts -nonewline $::yyout $::yytext
+    } else {
+        puts -nonewline $::yyout $s
+    }
+}
+proc YY_FLUSH_BUFFER {} {
+    set ::yy_buffer ""
+    set ::yy_index 0
+    set ::yy_done 0
+}
+proc yyrestart new_file {
+    set ::yyin $new_file
+    YY_FLUSH_BUFFER
+}
+proc YY_INPUT {buf result max_size} {
+    upvar $result ret_val
+    upvar $buf new_data
+    if {$::yyin != ""} {
+        gets $::yyin new_data
+        if {![eof $::yyin]} {
+            append new_data \n
+        }
+        set ret_val [string length $new_data]
+    } else {
+        set new_data ""
+        set ret_val 0
+    }
+}
+proc yy_scan_string str {
+    append ::yy_buffer $str
+    set ::yyin ""
+}
+proc unput c {
+    set s [string range $::yy_buffer 0 [expr {$::yy_index - 1}]]
+    append s $c
+    set ::yy_buffer [append s [string range $::yy_buffer $::yy_index end]]
+}
+proc yyless n {
+    set s [string range $::yy_buffer 0 [expr {$::yy_index - 1}]]
+    append s [string range $::yytext $n end]
+    set ::yy_buffer [append s [string range $::yy_buffer $::yy_index end]]
+    set ::yytext [string range $::yytext 0 [expr {$n - 1}]]
+    set ::yyleng [string length $::yytext]
+}
+proc input {} {
+    if {[string length $::yy_buffer] - $::yy_index < 1} {
+       set new_buffer_size 0
+       if {$::yy_done == 0} {
+           YY_INPUT new_buffer new_buffer_size 1
+           append ::yy_buffer $new_buffer
+           if {$new_buffer_size == 0} {
+               set ::yy_done 1
+           }
+       }
+       if $::yy_done {
+           if {[yywrap] == 0} {
+               return [input]
+           } elseif {[string length $::yy_buffer] - $::yy_index == 0} {
+               return {}
+           }
+        }
+    }
+    set c [string index $::yy_buffer $::yy_index]
+    incr ::yy_index
+    return $c
+}
+set ::yytext {}
+set ::yyleng 0
+set ::yy_buffer {}
+set ::yy_index 0
+set ::yy_done 0
+if {![info exists ::yyin]} {
+    set ::yyin "stdin"
+}
+if {![info exists ::yyout]} {
+    set ::yyout "stdout"
+}
+proc yylex {} {
+    upvar #0 ::yytext yytext
+    upvar #0 ::yyleng yyleng
+    while {1} {
+        if {[string length $::yy_buffer] - $::yy_index < 1} {
+            if {$::yy_done == 0} {
+                set yy_new_buffer ""
+                YY_INPUT yy_new_buffer yy_buffer_size 1
+                append ::yy_buffer $yy_new_buffer
+                if {$yy_buffer_size == 0 &&  [string length $::yy_buffer] - $::yy_index == 0} {
+                    set ::yy_done 1
+                }
+            }
+            if $::yy_done {
+                if {[yywrap] == 0} {
+                    set ::yy_done 0
+                    continue
+                } elseif {[string length $::yy_buffer] - $::yy_index == 0} {
+                    break
+                }
+            }            
+        }
+        set ::yyleng 0
+        set yy_matched_rule -1
+        # rule 0: {number}
+        if {[regexp -start $::yy_index -indices -line  -- {\A(([0-9]+[.]?[0-9]*([eE][-+]?[0-9]+)?))} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 0
+        }
+        # rule 1: {bltin}
+        if {[regexp -start $::yy_index -indices -line  -- {\A((cos|acos|tan|atan|sin|asin|log|log10|sqrt|int|exp))} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 1
+        }
+        # rule 2: print
+        if {[regexp -start $::yy_index -indices -line  -- {\A(print)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 2
+        }
+        # rule 3: if
+        if {[regexp -start $::yy_index -indices -line  -- {\A(if)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 3
+        }
+        # rule 4: else
+        if {[regexp -start $::yy_index -indices -line  -- {\A(else)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 4
+        }
+        # rule 5: while
+        if {[regexp -start $::yy_index -indices -line  -- {\A(while)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 5
+        }
+        # rule 6: [_A-Za-z][_A-Za-z0-9]*
+        if {[regexp -start $::yy_index -indices -line  -- {\A([_A-Za-z][_A-Za-z0-9]*)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 6
+        }
+        # rule 7: ||
+        if {[regexp -start $::yy_index -indices -line  -- {\A(||)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 7
+        }
+        # rule 8: &&
+        if {[regexp -start $::yy_index -indices -line  -- {\A(&&)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 8
+        }
+        # rule 9: ==
+        if {[regexp -start $::yy_index -indices -line  -- {\A(==)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 9
+        }
+        # rule 10: !=
+        if {[regexp -start $::yy_index -indices -line  -- {\A(!=)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 10
+        }
+        # rule 11: <=
+        if {[regexp -start $::yy_index -indices -line  -- {\A(<=)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 11
+        }
+        # rule 12: >=
+        if {[regexp -start $::yy_index -indices -line  -- {\A(>=)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 12
+        }
+        # rule 13: <
+        if {[regexp -start $::yy_index -indices -line  -- {\A(<)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 13
+        }
+        # rule 14: >
+        if {[regexp -start $::yy_index -indices -line  -- {\A(>)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 14
+        }
+        # rule 15: !
+        if {[regexp -start $::yy_index -indices -line  -- {\A(!)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 15
+        }
+        # rule 16: \{
+        if {[regexp -start $::yy_index -indices -line  -- {\A(\{)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 16
+        }
+        # rule 17: \}
+        if {[regexp -start $::yy_index -indices -line  -- {\A(\})} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 17
+        }
+        # rule 18: \n
+        if {[regexp -start $::yy_index -indices -line  -- {\A(\n)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 18
+        }
+        # rule 19: \s
+        if {[regexp -start $::yy_index -indices -line  -- {\A(\s)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 19
+        }
+        # rule 20: .
+        if {[regexp -start $::yy_index -indices -line  -- {\A(.)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 20
+        }
+        if {$yy_matched_rule == -1} {
+            set ::yytext [string index $::yy_buffer $::yy_index]
+            set ::yyleng 1
+        }
+        incr ::yy_index $::yyleng
+        # workaround for Tcl's circumflex behavior
+        if {[string index $::yytext end] == "\n"} {
+            set ::yy_buffer [string range $::yy_buffer $::yy_index end]
+            set ::yy_index 0
+        }
+        switch -- $yy_matched_rule {
+            0 {
+set ::yylval $yytext; return $::NUMBER
+            }
+            1 {
+set ::yylval $yytext; return $::BLTIN
+            }
+            2 {
+return $::PRINT
+            }
+            3 {
+return $::IF
+            }
+            4 {
+return $::ELSE
+            }
+            5 {
+return $::WHILE
+            }
+            6 {
+set ::yylval $yytext; return $::VAR
+            }
+            7 {
+return $::OR
+            }
+            8 {
+return $::AND
+            }
+            9 {
+return $::EQ
+            }
+            10 {
+return $::NE
+            }
+            11 {
+return $::LE
+            }
+            12 {
+return $::GE
+            }
+            13 {
+return $::LT
+            }
+            14 {
+return $::GT
+            }
+            15 {
+return $::NOT
+            }
+            16 {
+return $::LBRACKET
+            }
+            17 {
+return $::RBRACKET
+            }
+            18 {
+return $::NEWLINE
+            }
+            19 {
+# ignore whitespace
+            }
+            20 {
+set ::yylval $yytext; return $yytext
+            }
+            default
+                { ECHO }
+        }
+    }
+    return 0
+}
+## ==========> source hoc5.fcl.tcl  (end)
+yyparse
+## ==========> source hoc5.tac.tcl  (end)

@@ -20,6 +20,7 @@ foreach cmd {if while set array proc foreach puts eval open read close} {
     rename $cmd __$cmd
 }
 
+__puts "#! /usr/bin/env tclsh"
 source $argv
 
 

@@ -1,0 +1,820 @@
+#! /usr/bin/env tclsh
+## ==========> source hoc3.tac.tcl  (start)
+array set ::mem {
+    PI  3.14159265358979323846
+    E   2.7182818284590452354
+    LN2 0.693147180559945309417
+    DEG 57.29577951308232087680
+    PHI 1.611803398874989484820
+}
+proc YYABORT {} {
+    return -code return 1
+}
+proc YYACCEPT {} {
+    return -code return 0
+}
+proc yyclearin {} {
+    upvar yytoken t
+    set t ""
+}
+proc yyerror s {
+    puts stderr $s
+}
+proc yysetupvalues {stack pointer numsyms} {
+    upvar 1 1 y
+    set y {}
+    for {set i 1} {$i <= $numsyms} {incr i} {
+        upvar 1 $i y
+        set y [lindex $stack $pointer]
+        incr pointer
+    }
+}
+proc yyunsetupvalues numsyms {
+    for {set i 1} {$i <= $numsyms} {incr i} {
+        upvar 1 $i y
+        unset y
+    }
+}
+array set ::yytable {
+  27:- reduce
+  26:+,target 14
+  17:257 shift
+  4:/,target 8
+  17:258 shift
+  27:/ shift
+  17:259 shift
+  11:+,target 10
+  27:0 reduce
+  16:(,target 1
+  2:( shift
+  17:264 goto
+  16:262,target 25
+  17:265 goto
+  31:/,target 11
+  24:) shift
+  23:/,target 20
+  2:- shift
+  15:257,target 4
+  26:260 reduce
+  24:* shift
+  24:+ shift
+  0:error shift
+  5:= shift
+  24:- shift
+  1:258,target 5
+  27:260,target 12
+  26:),target 14
+  4:-,target 8
+  24:/ shift
+  9:*,target 10
+  11:),target 10
+  17:264,target 11
+  25:0,target 1
+  16:259,target 6
+  16:260,target 6
+  13:^ shift
+  21:( shift
+  31:-,target 11
+  10:0,target 3
+  23:-,target 19
+  15:-,target 2
+  28:*,target 17
+  21:- shift
+  26:^,target 21
+  13:*,target 18
+  4:+,target 8
+  11:^,target 10
+  14:257 shift
+  14:258 shift
+  2:(,target 1
+  14:259 shift
+  10:^ shift
+  17:( shift
+  16:257,target 4
+  14:264 goto
+  31:^ reduce
+  31:+,target 11
+  14:265 goto
+  23:+,target 18
+  3:260 reduce
+  2:258,target 5
+  28:260,target 13
+  23:260 reduce
+  17:- shift
+  21:(,target 1
+  18:264,target 11
+  4:),target 8
+  27:/,target 20
+  17:259,target 6
+  5:^ reduce
+  12:/,target 20
+  14:( shift
+  3:0,target 5
+  27:^ shift
+  31:),target 11
+  23:),target 7
+  1:-,target 2
+  14:- shift
+  8:260,target 16
+  4:^,target 8
+  30:0,target 16
+  29:0,target 15
+  22:0,target 17
+  27:-,target 12
+  17:257,target 4
+  20:-,target 2
+  19:-,target 2
+  11:260 reduce
+  9:* reduce
+  11:) reduce
+  12:-,target 19
+  24:^ shift
+  9:+ reduce
+  11:* reduce
+  31:^,target 11
+  11:+ reduce
+  14:265,target 23
+  30:260,target 16
+  29:260,target 15
+  23:^,target 21
+  0:257 shift
+  9:- reduce
+  10:*,target 17
+  0:258 shift
+  11:- reduce
+  20:257 shift
+  19:257 shift
+  0:259 shift
+  0:260 reduce
+  9:/ reduce
+  20:264,target 11
+  20:258 shift
+  19:264,target 11
+  19:258 shift
+  6:(,target 15
+  9:0 reduce
+  11:/ reduce
+  20:259 shift
+  19:259 shift
+  0:262 goto
+  11:0 reduce
+  0:263 goto
+  18:259,target 6
+  0:264 goto
+  0:265 goto
+  20:264 goto
+  19:264 goto
+  6:( shift
+  27:+,target 12
+  20:265 goto
+  19:265 goto
+  5:/,target 9
+  8:260 shift
+  12:+,target 18
+  28:260 reduce
+  28:) reduce
+  17:(,target 1
+  28:* shift
+  9:260,target 4
+  28:+ reduce
+  28:- reduce
+  0:264,target 9
+  24:/,target 20
+  28:/ shift
+  28:0 reduce
+  18:257,target 4
+  7:0,target 0
+  0:0,target 6
+  27:),target 12
+  5:-,target 9
+  15:265,target 24
+  31:260,target 11
+  12:),target 22
+  21:264,target 11
+  26:0,target 14
+  3:0 reduce
+  20:259,target 6
+  19:259,target 6
+  16:257 shift
+  0:262,target 7
+  11:0,target 10
+  24:-,target 19
+  16:258 shift
+  25:0 reduce
+  16:-,target 2
+  16:259 shift
+  16:260 reduce
+  30:*,target 16
+  29:*,target 15
+  0:( shift
+  22:*,target 17
+  16:262 goto
+  27:^,target 21
+  16:263 goto
+  16:264 goto
+  5:+,target 9
+  16:265 goto
+  12:^,target 21
+  22:) reduce
+  0:- shift
+  5:260 reduce
+  22:* reduce
+  22:+ reduce
+  14:258,target 5
+  1:264,target 11
+  0:0 reduce
+  22:- reduce
+  22:/ reduce
+  20:257,target 4
+  19:257,target 4
+  0:259,target 6
+  0:260,target 6
+  9:/,target 10
+  24:+,target 18
+  22:0 reduce
+  16:265,target 10
+  11:^ reduce
+  14:(,target 1
+  18:( shift
+  5:),target 9
+  28:/,target 20
+  21:259,target 6
+  18:- shift
+  13:/,target 18
+  4:0,target 8
+  0:257,target 4
+  9:-,target 10
+  24:),target 31
+  2:-,target 2
+  10:260,target 3
+  13:260 reduce
+  16:263,target 8
+  15:( shift
+  5:^,target 9
+  31:0,target 11
+  28:^ shift
+  23:0,target 7
+  2:257 shift
+  15:258,target 5
+  2:264,target 11
+  2:258 shift
+  28:-,target 13
+  2:259 shift
+  21:-,target 2
+  15:- shift
+  22:260 reduce
+  21:257,target 4
+  1:259,target 6
+  13:-,target 18
+  26:*,target 14
+  2:264 goto
+  24:^,target 21
+  2:265 goto
+  9:+,target 10
+  11:*,target 10
+  17:265,target 26
+  0:(,target 1
+  31:260 reduce
+  12:) shift
+  12:* shift
+  12:+ shift
+  22:260,target 17
+  28:+,target 13
+  12:- shift
+  1:257,target 4
+  12:/ shift
+  13:+,target 18
+  18:(,target 1
+  11:260,target 10
+  16:258,target 5
+  10:260 reduce
+  22:^ reduce
+  8:0,target 2
+  10:/,target 20
+  30:) reduce
+  29:) reduce
+  30:* reduce
+  29:* reduce
+  2:259,target 6
+  30:+ reduce
+  29:+ reduce
+  28:),target 13
+  18:257 shift
+  7:0 accept
+  30:- reduce
+  29:- reduce
+  18:258 shift
+  13:),target 18
+  18:259 shift
+  18:265,target 27
+  4:*,target 8
+  30:/ reduce
+  29:/ reduce
+  30:0 reduce
+  29:0 reduce
+  27:0,target 12
+  18:264 goto
+  4:) reduce
+  18:265 goto
+  4:* reduce
+  4:+ reduce
+  23:260,target 7
+  17:-,target 2
+  31:*,target 11
+  27:260 reduce
+  26:) reduce
+  4:- reduce
+  10:-,target 19
+  26:* reduce
+  23:*,target 17
+  28:^,target 21
+  26:+ reduce
+  2:257,target 4
+  4:/ reduce
+  4:0 reduce
+  26:- reduce
+  13:^,target 21
+  26:/ reduce
+  26:0 reduce
+  1:( shift
+  17:258,target 5
+  23:) reduce
+  1:- shift
+  3:260,target 5
+  23:* shift
+  10:+,target 18
+  23:+ shift
+  15:(,target 1
+  23:- shift
+  20:265,target 29
+  19:265,target 28
+  23:/ shift
+  16:error,target 3
+  15:257 shift
+  30:/,target 16
+  29:/,target 15
+  23:0 reduce
+  15:258 shift
+  22:/,target 17
+  15:259 shift
+  5:0,target 9
+  12:^ shift
+  20:( shift
+  19:( shift
+  15:264 goto
+  15:265 goto
+  4:260 reduce
+  14:264,target 11
+  20:- shift
+  19:- shift
+  13:260,target 18
+  0:265,target 10
+  16:0,target 6
+  30:-,target 16
+  29:-,target 15
+  18:258,target 5
+  22:-,target 17
+  14:-,target 2
+  27:*,target 17
+  16:( shift
+  4:260,target 8
+  12:*,target 17
+  30:^ shift
+  29:^ shift
+  10:^,target 21
+  21:265,target 30
+  16:- shift
+  1:(,target 1
+  0:263,target 8
+  16:0 reduce
+  30:+,target 16
+  29:+,target 15
+  16:error shift
+  22:+,target 17
+  4:^ reduce
+  20:(,target 1
+  19:(,target 1
+  13:) reduce
+  15:264,target 11
+  26:^ shift
+  13:* reduce
+  1:257 shift
+  13:+ reduce
+  1:258 shift
+  14:259,target 6
+  21:257 shift
+  1:259 shift
+  1:265,target 12
+  13:- reduce
+  26:/,target 14
+  21:258 shift
+  21:259 shift
+  13:/ reduce
+  20:258,target 5
+  19:258,target 5
+  9:0,target 4
+  11:/,target 10
+  13:0 reduce
+  1:264 goto
+  0:error,target 3
+  5:=,target 14
+  1:265 goto
+  30:),target 16
+  29:),target 15
+  21:264 goto
+  22:),target 17
+  21:265 goto
+  0:-,target 2
+  5:260,target 9
+  9:260 reduce
+  5:*,target 9
+  30:260 reduce
+  29:260 reduce
+  23:^ shift
+  10:* shift
+  10:+ shift
+  31:) reduce
+  28:0,target 13
+  31:* reduce
+  10:- shift
+  14:257,target 4
+  31:+ reduce
+  13:0,target 18
+  26:-,target 14
+  8:0 reduce
+  10:/ shift
+  31:- reduce
+  18:-,target 2
+  10:0 reduce
+  0:258,target 5
+  11:-,target 10
+  31:/ reduce
+  26:260,target 14
+  24:*,target 17
+  31:0 reduce
+  30:^,target 21
+  29:^,target 21
+  22:^,target 17
+  16:264,target 9
+  5:) reduce
+  5:* reduce
+  5:+ reduce
+  15:259,target 6
+  27:) reduce
+  2:265,target 13
+  5:- reduce
+  27:* shift
+  27:+ reduce
+  5:/ reduce
+  21:258,target 5
+  5:0 reduce
+}
+array set ::yyrules {
+  9,l 265
+  11,l 265
+  15,l 265
+  2,l 262
+  6,l 263
+  12,l 265
+  16,l 265
+  3,l 263
+  7,l 264
+  13,l 265
+  0,l 266
+  17,l 265
+  4,l 263
+  8,l 265
+  10,l 265
+  14,l 265
+  18,l 265
+  1,l 262
+  5,l 263
+}
+array set ::yyrules {
+  5,dc 1
+  0,dc 1
+  17,dc 3
+  12,dc 3
+  8,dc 1
+  3,dc 1
+  15,dc 3
+  10,dc 1
+  6,dc 0
+  18,dc 2
+  1,dc 3
+  13,dc 3
+  9,dc 1
+  4,dc 1
+  16,dc 3
+  11,dc 4
+  7,dc 3
+  2,dc 1
+  14,dc 3
+}
+array set ::yyrules {
+  13,line 49
+  7,line 36
+  10,line 46
+  4,line 31
+  18,line 54
+  1,line 26
+  15,line 51
+  9,line 45
+  12,line 48
+  6,line 33
+  3,line 30
+  17,line 53
+  14,line 50
+  8,line 39
+  11,line 47
+  5,line 32
+  2,line 27
+  16,line 52
+}
+proc yyparse {} {
+    set yystate_stack {0}
+    set yyvalue_stack {{}}
+    set yytoken ""
+    set yyaccepted 0
+    while {$yyaccepted == 0} {
+        set yystate [lindex $yystate_stack end]
+        if {$yytoken == ""} {
+            set ::yylval ""
+            set yytoken [yylex]
+            set yybuflval $::yylval
+        }
+        if {![info exists ::yytable($yystate:$yytoken)]} {
+            # pop off states until error token accepted
+            while {[llength $yystate_stack] > 0 &&  ![info exists ::yytable($yystate:error)]} {
+                set yystate_stack [lrange $yystate_stack 0 end-1]
+                set yyvalue_stack [lrange $yyvalue_stack 0  [expr {[llength $yystate_stack] - 1}]]
+                set yystate [lindex $yystate_stack end]
+            }
+            if {[llength $yystate_stack] == 0} {
+                yyerror "parse error"
+                return 1
+            }
+            lappend yystate_stack [set yystate $::yytable($yystate:error,target)]
+            lappend yyvalue_stack {}
+            # consume tokens until it finds an acceptable one
+            while {![info exists ::yytable($yystate:$yytoken)]} {
+                if {$yytoken == 0} {
+                    yyerror "end of file while recovering from error"
+                    return 1
+                }
+                set ::yylval {}
+                set yytoken [yylex]
+                set yybuflval $::yylval
+            }
+            continue
+        }
+        switch -- $::yytable($yystate:$yytoken) {
+            shift {
+                lappend yystate_stack $::yytable($yystate:$yytoken,target)
+                lappend yyvalue_stack $yybuflval
+                set yytoken ""
+            }
+            reduce {
+                set yyrule $::yytable($yystate:$yytoken,target)
+                set yyl $::yyrules($yyrule,l)
+                if {[info exists ::yyrules($yyrule,e)]} {
+                    set yydc $::yyrules($yyrule,e)
+                } else {
+                    set yydc $::yyrules($yyrule,dc)
+                }
+                set yystackpointer [expr {[llength $yystate_stack]-$yydc}]
+                yysetupvalues $yyvalue_stack $yystackpointer $yydc
+                set _ $1
+                set ::yylval [lindex $yyvalue_stack end]
+                switch -- $yyrule {
+                    3 {  puts " = $1"  }
+                    5 {  puts " -- error"  }
+                    7 {  set ::mem($1) $3 ; set _ $3  }
+                    8 {  set _ $1  }
+                    9 { 
+       set failed [catch { set _ $::mem($1) }]
+       if { $failed } {
+       	  puts "undefined variable $1"
+       }
+  }
+                    11 {  set _ [::tcl::mathfunc::$1 $3]  }
+                    12 {  set _ [expr {$1 + $3}]  }
+                    13 {  set _ [expr {$1 - $3}]  }
+                    14 {  set _ [expr {$1 * $3}]  }
+                    15 {  set _ [expr {$1 / $3}]  }
+                    16 {  set _ [expr {$1 ** $3}]  }
+                    17 {  set _ $2  }
+                    18 {  set _ [expr -$2]  }
+                }
+                yyunsetupvalues $yydc
+                # pop off tokens from the stack if normal rule
+                if {![info exists ::yyrules($yyrule,e)]} {
+                    incr yystackpointer -1
+                    set yystate_stack [lrange $yystate_stack 0 $yystackpointer]
+                    set yyvalue_stack [lrange $yyvalue_stack 0 $yystackpointer]
+                }
+                # now do the goto transition
+                lappend yystate_stack $::yytable([lindex $yystate_stack end]:$yyl,target)
+                lappend yyvalue_stack $_
+            }
+            accept {
+                set yyaccepted 1
+            }
+            goto -
+            default {
+                puts stderr "Internal parser error: illegal command $::yytable($yystate:$yytoken)"
+                return 2
+            }
+        }
+    }
+    return 0
+}
+## ==========> source hoc3.fcl.tcl  (start)
+## ==========> source hoc3.tac.tab.tcl  (start)
+set ::NUMBER 257
+set ::VAR 258
+set ::BLTIN 259
+set ::NEWLINE 260
+set ::UNARYMINUS 261
+set ::yylval {}
+## ==========> source hoc3.tac.tab.tcl  (end)
+proc yywrap {} {
+    return 1
+}
+proc ECHO {{s ""}} {
+    if {$s == ""} {
+        puts -nonewline $::yyout $::yytext
+    } else {
+        puts -nonewline $::yyout $s
+    }
+}
+proc YY_FLUSH_BUFFER {} {
+    set ::yy_buffer ""
+    set ::yy_index 0
+    set ::yy_done 0
+}
+proc yyrestart new_file {
+    set ::yyin $new_file
+    YY_FLUSH_BUFFER
+}
+proc YY_INPUT {buf result max_size} {
+    upvar $result ret_val
+    upvar $buf new_data
+    if {$::yyin != ""} {
+        gets $::yyin new_data
+        if {![eof $::yyin]} {
+            append new_data \n
+        }
+        set ret_val [string length $new_data]
+    } else {
+        set new_data ""
+        set ret_val 0
+    }
+}
+proc yy_scan_string str {
+    append ::yy_buffer $str
+    set ::yyin ""
+}
+proc unput c {
+    set s [string range $::yy_buffer 0 [expr {$::yy_index - 1}]]
+    append s $c
+    set ::yy_buffer [append s [string range $::yy_buffer $::yy_index end]]
+}
+proc yyless n {
+    set s [string range $::yy_buffer 0 [expr {$::yy_index - 1}]]
+    append s [string range $::yytext $n end]
+    set ::yy_buffer [append s [string range $::yy_buffer $::yy_index end]]
+    set ::yytext [string range $::yytext 0 [expr {$n - 1}]]
+    set ::yyleng [string length $::yytext]
+}
+proc input {} {
+    if {[string length $::yy_buffer] - $::yy_index < 1} {
+       set new_buffer_size 0
+       if {$::yy_done == 0} {
+           YY_INPUT new_buffer new_buffer_size 1
+           append ::yy_buffer $new_buffer
+           if {$new_buffer_size == 0} {
+               set ::yy_done 1
+           }
+       }
+       if $::yy_done {
+           if {[yywrap] == 0} {
+               return [input]
+           } elseif {[string length $::yy_buffer] - $::yy_index == 0} {
+               return {}
+           }
+        }
+    }
+    set c [string index $::yy_buffer $::yy_index]
+    incr ::yy_index
+    return $c
+}
+set ::yytext {}
+set ::yyleng 0
+set ::yy_buffer {}
+set ::yy_index 0
+set ::yy_done 0
+if {![info exists ::yyin]} {
+    set ::yyin "stdin"
+}
+if {![info exists ::yyout]} {
+    set ::yyout "stdout"
+}
+proc yylex {} {
+    upvar #0 ::yytext yytext
+    upvar #0 ::yyleng yyleng
+    while {1} {
+        if {[string length $::yy_buffer] - $::yy_index < 1} {
+            if {$::yy_done == 0} {
+                set yy_new_buffer ""
+                YY_INPUT yy_new_buffer yy_buffer_size 1
+                append ::yy_buffer $yy_new_buffer
+                if {$yy_buffer_size == 0 &&  [string length $::yy_buffer] - $::yy_index == 0} {
+                    set ::yy_done 1
+                }
+            }
+            if $::yy_done {
+                if {[yywrap] == 0} {
+                    set ::yy_done 0
+                    continue
+                } elseif {[string length $::yy_buffer] - $::yy_index == 0} {
+                    break
+                }
+            }            
+        }
+        set ::yyleng 0
+        set yy_matched_rule -1
+        # rule 0: {number}
+        if {[regexp -start $::yy_index -indices -line  -- {\A(([0-9]+[.]?[0-9]*([eE][-+]?[0-9]+)?))} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 0
+        }
+        # rule 1: {bltin}
+        if {[regexp -start $::yy_index -indices -line  -- {\A((cos|acos|tan|atan|sin|asin|log|log10|sqrt|int|exp))} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 1
+        }
+        # rule 2: [A-Za-z]+
+        if {[regexp -start $::yy_index -indices -line  -- {\A([A-Za-z]+)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 2
+        }
+        # rule 3: \n
+        if {[regexp -start $::yy_index -indices -line  -- {\A(\n)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 3
+        }
+        # rule 4: \s
+        if {[regexp -start $::yy_index -indices -line  -- {\A(\s)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 4
+        }
+        # rule 5: .
+        if {[regexp -start $::yy_index -indices -line  -- {\A(.)} $::yy_buffer yy_match] > 0 &&  [lindex $yy_match 1] - $::yy_index + 1 > $::yyleng} {
+            set ::yytext [string range $::yy_buffer $::yy_index [lindex $yy_match 1]]
+            set ::yyleng [string length $::yytext]
+            set yy_matched_rule 5
+        }
+        if {$yy_matched_rule == -1} {
+            set ::yytext [string index $::yy_buffer $::yy_index]
+            set ::yyleng 1
+        }
+        incr ::yy_index $::yyleng
+        # workaround for Tcl's circumflex behavior
+        if {[string index $::yytext end] == "\n"} {
+            set ::yy_buffer [string range $::yy_buffer $::yy_index end]
+            set ::yy_index 0
+        }
+        switch -- $yy_matched_rule {
+            0 {
+set ::yylval $yytext; return $::NUMBER
+            }
+            1 {
+set ::yylval $yytext; return $::BLTIN
+            }
+            2 {
+set ::yylval $yytext; return $::VAR
+            }
+            3 {
+return $::NEWLINE
+            }
+            4 {
+# ignore whitespace
+            }
+            5 {
+set ::yylval $yytext; return $yytext
+            }
+            default
+                { ECHO }
+        }
+    }
+    return 0
+}
+## ==========> source hoc3.fcl.tcl  (end)
+yyparse
+## ==========> source hoc3.tac.tcl  (end)
