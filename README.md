@@ -9,7 +9,7 @@ The 7th stage `hoc7` in this project adds some enhancements to the latest versio
 
 The code of `hoc7` is very small (less than 500 lines including blank lines and comments) and easy to understand.
 
-This was just a fun project. But I find `hoc7` useful and use it as a calculator as a good alternative to `bc -l`.
+This was just a fun project to understand how works TCL bytecode engine. But I find `hoc7` useful and use it as a calculator as a good alternative to `bc -l`.
 
 ## Stage 1
 
@@ -212,6 +212,7 @@ The book stopped at hoc6 but suggest some enhancements like :
   * named function parameters
   * lazy evaluation like in C for `||` and `&&`  (done)
   * add `do ... while` loops  (done)
+  * add `break` and `continue` to loops (done)
   * add C-like op-assign operators like `+=`, `-=` and so on (done)
   * add C-like `++` and `--` operators (done)
   * add C-like ternary operator `?:` (done)
@@ -235,7 +236,7 @@ TCL bytecodes are not documented, what they do and how they are invoked has to b
 
 Arithmetic opcodes with 2 arguments are `add`, `sub`, `mult`, `div`, `mod` and `expon`. They operates on the two values on the top of the stack, first operand being at [stack-1] and second operand at [stack].
 
-Unary opcode `uminus` negates top of stack.
+Unary opcode `uminus` negates top of stack. `push 1 ; uminus` leaves `-1` on top of stack.
 
 ### Variables
 
@@ -245,9 +246,17 @@ Code `load x` will push procedure local variable `x` value on the stack.
 
 Code `store x` will store value on top of stack in procedure local variable `x`
 
+Code `push field1 ; push field2 ; push value ; dictSet 1 dico` will update procedure local dictionnary held in `dico`. Like `dict set dico field1 field2 value`.
+
+Code `load dico ; push field1 ; push field2 ; dictGet 2` will push on stack the result of `dict get $dico field1 field2`.
+
+
 ### Control Flow
 
-
+Control flow statements are implemented with jumps (conditional or not) and labels. Jump instructions are
+  * `jumpFalse label` : pops top value of stack, if 0 jumps to label otherwise proceeds to next instruction.
+  * `jumpTrue label`: pops top value of stack, if NOT 0 jumps to label otherwise proceeds to next instruction.
+  * `jump label` : always jump, doesn't change the stack. Used to implement `return`.
 
 
 ## Future directions
