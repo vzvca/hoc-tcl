@@ -5,6 +5,12 @@ Chapter 8 of the book by Brian W. Kernihgan & Rob Pike is devoted to program dev
 
 There are 6 stages in hoc development with increasing complexity and functionality. Starting at stage 4 a bytecode engine is added, in this project I used the TCL builtin bytecode engine which is available at the script level using `::tcl::unsupported::assemble` since Tcl 8.6.3.
 
+The 7th stage `hoc7` in this project adds some enhancements to the latest version described in the book. Most of the enhancements implemented here were left as exercises for the reader by the authors.
+
+The code of `hoc7` is very small (less than 500 lines including blank lines and comments) and easy to understand.
+
+This was just a fun project. But I find `hoc7` useful and use it as a calculator as a good alternative to `bc -l`.
+
 ## Stage 1
 
 This 1st increment is derived both from taccle example `interactive_calculator.tac` and hoc stage 1.
@@ -115,7 +121,137 @@ sqrt(2)
 
 The bytecode is generated in a list kept in global variable `::todo`, bytecode instructions are pushed during parsing. Once a complete line has been parsed, the bytecode is assembled using `::tcl::unsupported::assemble` which evaluates it at the same time. The result is printed.
 
+The bytecode generator is very crude and doesn't attempt to perform any optimization.
 
 ## Stage 5
 
 Adding control flow `if ... else` and `while` loops. They get compiled to TCL bytecode and can be nested.
+
+## Stage 6
+
+Main improvements are procedure and functions. The compiler generates a TCL `proc` whose body is a `tcl::unsupported::assemble` statement. Like this :
+````
+func ftwo() { return 2*$1 }
+````
+becomes
+````
+proc ftwo args {
+     lassign $args 1 2 3 4 5 6 7 8 9
+     ::tcl::unsupported::assemble { push 2 ; load 1 ; mult }
+}
+````
+which disassembles to :
+````
+% disasm proc ftwo
+ByteCode 0x0x8000b3a70, refCt 1, epoch 18, interp 0x0x80000d230 (epoch 18)
+  Source "\n     lassign $args 1 2 3 4 5 6 7 8 9\n     ::tcl::uns..."
+  Cmds 2, src 99, inst 99, litObjs 1, aux 0, stkDepth 2, code/src 0.00
+  Proc 0x0x8000e7340, refCt 1, args 1, compiled locals 10
+      slot 0, scalar, arg, "args"
+      slot 1, scalar, "1"
+      slot 2, scalar, "2"
+      slot 3, scalar, "3"
+      slot 4, scalar, "4"
+      slot 5, scalar, "5"
+      slot 6, scalar, "6"
+      slot 7, scalar, "7"
+      slot 8, scalar, "8"
+      slot 9, scalar, "9"
+  Commands 2:
+      1: pc 0-92, src 6-36        2: pc 93-97, src 43-97
+  Command 1: "lassign $args 1 2 3 4 5 6 7 8 9..."
+    (0) loadScalar1 %v0         # var "args"
+    (2) dup
+    (3) listIndexImm 0
+    (8) storeScalar1 %v1        # var "1"
+    (10) pop
+    (11) dup
+    (12) listIndexImm 1
+    (17) storeScalar1 %v2       # var "2"
+    (19) pop
+    (20) dup
+    (21) listIndexImm 2
+    (26) storeScalar1 %v3       # var "3"
+    (28) pop
+    (29) dup
+    (30) listIndexImm 3
+    (35) storeScalar1 %v4       # var "4"
+    (37) pop
+    (38) dup
+    (39) listIndexImm 4
+    (44) storeScalar1 %v5       # var "5"
+    (46) pop
+    (47) dup
+    (48) listIndexImm 5
+    (53) storeScalar1 %v6       # var "6"
+    (55) pop
+    (56) dup
+    (57) listIndexImm 6
+    (62) storeScalar1 %v7       # var "7"
+    (64) pop
+    (65) dup
+    (66) listIndexImm 7
+    (71) storeScalar1 %v8       # var "8"
+    (73) pop
+    (74) dup
+    (75) listIndexImm 8
+    (80) storeScalar1 %v9       # var "9"
+    (82) pop
+    (83) listRangeImm 9 end
+    (92) pop
+  Command 2: "::tcl::unsupported::assemble { push 2 ; load 1 ; mult }..."
+    (93) push1 0        # "2"
+    (95) loadScalar1 %v1        # var "1"
+    (97) mult
+    (98) done
+````
+
+## Stage 7
+
+The book stopped at hoc6 but suggest some enhancements like :
+  * named function parameters
+  * lazy evaluation like in C for `||` and `&&`  (done)
+  * add `do ... while` loops  (done)
+  * add C-like op-assign operators like `+=`, `-=` and so on (done)
+  * add C-like `++` and `--` operators (done)
+  * add C-like ternary operator `?:` (done)
+  * add arrays and structured data
+  * perform constant folding during expression compilation
+
+These enhancements are being added to hoc7 with some internal changes :
+  * global variables are not kept in the `::mem()` TCL array anymore
+  * in a function, each time a variable which is not a parameter is used it is assumed to be global and `upvar` is used.
+  * the command `print` was removed, it is not needed since TCL `puts` can be used form hoc (like any other TCL command)
+  * builtin string operations were added
+
+Structured data were implemented using `dict` and are using dedicated TCL bytecodes like `dictSet` and `dictGet`.
+
+
+## TCL bytecodes
+
+TCL bytecodes are not documented, what they do and how they are invoked has to be guessed by dissassembling code. The dissambler `tool/disasm.tcl` comes from the TCL wiki and helped a lot.
+
+### Arithmetic opcodes
+
+Arithmetic opcodes with 2 arguments are `add`, `sub`, `mult`, `div`, `mod` and `expon`. They operates on the two values on the top of the stack, first operand being at [stack-1] and second operand at [stack].
+
+Unary opcode `uminus` negates top of stack.
+
+### Variables
+
+Code for upvar `push 1 ; push y ; upvar x` will create a procedure local variable `x` which is an alias for `y`.
+
+Code `load x` will push procedure local variable `x` value on the stack.
+
+Code `store x` will store value on top of stack in procedure local variable `x`
+
+### Control Flow
+
+
+
+
+## Future directions
+
+Maybe I will try a reimplementation of `little language` using `fickle/tackle`.
+
+
