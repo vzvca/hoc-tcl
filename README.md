@@ -209,7 +209,7 @@ ByteCode 0x0x8000b3a70, refCt 1, epoch 18, interp 0x0x80000d230 (epoch 18)
 ## Stage 7
 
 The book stopped at hoc6 but suggest some enhancements like :
-  * named function parameters
+  * named function parameters (work-in-progress)
   * lazy evaluation like in C for `||` and `&&`  (done)
   * add `do ... while` loops  (done)
   * add `break` and `continue` to loops (done)
@@ -218,12 +218,14 @@ The book stopped at hoc6 but suggest some enhancements like :
   * add C-like ternary operator `?:` (done)
   * add arrays and structured data
   * perform constant folding during expression compilation
+  * add `~~` and `!~` operators to test if values are almost equals or not (using global EPS which defaults to 1e-6). (done)
 
 These enhancements are being added to hoc7 with some internal changes :
-  * global variables are not kept in the `::mem()` TCL array anymore
+  * global variables are not kept in the `::mem()` TCL array anymore.
   * in a function, each time a variable which is not a parameter is used it is assumed to be global and `upvar` is used.
-  * the command `print` was removed, it is not needed since TCL `puts` can be used form hoc (like any other TCL command)
-  * builtin string operations were added
+  * the command `print` was removed, it is not needed since TCL `puts` can be used form hoc (like any other TCL command).
+  * builtin string operations were added.
+  * add a `var v1,v2, ...` statement to declare variables local to functions.
 
 Structured data were implemented using `dict` and are using dedicated TCL bytecodes like `dictSet` and `dictGet`.
 
@@ -245,6 +247,8 @@ Code for upvar `push 1 ; push y ; upvar x` will create a procedure local variabl
 Code `load x` will push procedure local variable `x` value on the stack.
 
 Code `store x` will store value on top of stack in procedure local variable `x`
+
+Code `push ::x ; loadStk` will work for global variables.
 
 Code `push field1 ; push field2 ; push value ; dictSet 1 dico` will update procedure local dictionnary held in `dico`. Like `dict set dico field1 field2 value`.
 
