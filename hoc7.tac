@@ -15,22 +15,41 @@ set ::debug 0
 set ::todo {}
 
 proc code { args } {
-     if { $::debug } { puts $args }
+     if { $::debug == 1 } { puts $args }
      lappend ::todo {*}$args ";"
-}	     
-
+}
+# build the list of global variables used in a function.
+# returns empty list if not called from a function.
+proc globals {} {
+    if { ![indefn] } { return {} }
+    puts "globals on [curblk]"
+    set lst [dict get [curblk] "args"]
+    lappend lst {*}[dict get [curblk] "locals"]
+    set res {}
+    foreach var [dict get [curblk] "idents"] {
+	if { [lsearch $lst $var] == -1 } {
+	    lappend res $var
+	}
+    }
+    return $res
+}
 proc getcode {} {
-    set code [join $::todo]
+    set code ""
+    # add prolog to perform upvar for global variables
+    foreach var [globals] {
+	append code "push #0 ; push $var ; upvar $var ; pop ; "
+    }
+    append code [join $::todo]
+    if { $::debug == 2 } { puts $code }
     set ::todo {}
     return $code
 }
-
 proc asm {} {
     return [::tcl::unsupported::assemble [getcode]]
 }
 
 proc opassign { op var } {
-    if { [islocal $var] } {
+    if { [indefn] } {
 	code load $var
 	code reverse 2 ; code $op
 	code store $var
@@ -51,9 +70,14 @@ proc epstst { op } {
 set ::nblk   0
 set ::nested {}
 proc startblk { what } {
-     set blk [incr ::nblk]
-     lappend ::nested [list "type" $what "idx" $blk]
-     return $blk
+    set blki [incr ::nblk]
+    if { $what ne "func" } {
+	set blk [dict create "type" $what "idx" $blki]
+    } else {
+	set blk [dict create "type" $what "idx" $blki "args" {} "locals" {} "idents" {}]
+    }
+    lappend ::nested $blk
+    return $blk
 }
 proc endblk {} {
      set ::nested [lrange $::nested 0 end-1]
@@ -64,13 +88,18 @@ proc curblk {} {
 proc curblki {} {
      return [dict get [curblk] "idx"]
 }
+proc curdefnblk {} {
+    set fblk [dict create "type" "none"]
+    foreach blk $::nested {
+	set what [dict get $blk "type"]
+	if { $what eq "func" } { set fblk $blk }
+    }
+    return $fblk
+}
 proc indefn {} {
-     set fblk ""
-     foreach blk $::nested {
-     	 set what [dict get $blk "type"]
-	 if { $what eq "func" } { set fblk $what }
-     }
-     expr {$fblk eq "func"}
+    set fblk [curdefnblk]
+    set what [dict get $fblk "type"]
+    expr {$what eq "func"}
 }
 proc check_func { token } {
      if { ![indefn] } {
@@ -111,10 +140,37 @@ proc curloopblki {} {
     return $res
 }
 proc islocal { var } {
+    if { [indefn] } {
+	set lst [dict get [curblk] "args"]
+	if { [lsearch $lst $var] != -1 } { return 1 }
+	set lst [dict get [curblk] "locals"]
+	if { [lsearch $lst $var] != -1 } { return 1 }	
+    } 
+    return 0
+}
+proc blkindex { idx } {
+    set cnt 0
+    foreach blk $::nested {
+	if { [dict get $blk "idx"] == $idx } { return $cnt }
+	incr cnt
+    }
+    return -1
+}
+proc addvar { var } {
+    if { ![indefn] } return
+    set blk [curdefnblk]
+    set lst [dict get $blk "args"]
+    if { [lsearch $lst $var] != -1 } return
+    set lst [dict get $blk "locals"]
+    if { [lsearch $lst $var] != -1 } return
+    set lst [dict get $blk "idents"]
+    if { [lsearch $lst $var] != -1 } return
+    dict lappend blk "idents" $var
+    lset ::nested [blkindex [curdefnblki]] $blk
 }
 %}
 
-%token NUMBER READ IDENT BLTIN PROCNAME VARNAME NEWLINE DO WHILE IF ELSE FUNC RETURN ARG LBRACKET RBRACKET STRING INCR DECR BREAK CONTINUE
+%token NUMBER READ IDENT BLTIN PROCNAME VARNAME NEWLINE DO WHILE IF ELSE FUNC RETURN LBRACKET RBRACKET STRING INCR DECR BREAK CONTINUE LOCAL
 %right '=' ADDASSIGN SUBASSIGN MULASSIGN DIVASSIGN LSRASSIGN LSLASSIGN MODASSIGN
 %left OR
 %left AND
@@ -133,20 +189,26 @@ list:  # empty
  | list expr  { puts " = [asm]" }
  | list error { puts " -- error" }
  ;
- 
+
+ident: IDENT { addvar $1 }
+ ;
+
+varname: VARNAME { addvar $1 }
+ ;
+
 asgn:
-   IDENT '=' expr  { if {[islocal $1]} { code store $1 } else { code push ::$1 ; code reverse 2 ; code storeStk } }
- | IDENT ADDASSIGN expr { opassign add $1 } 
- | IDENT SUBASSIGN expr { opassign sub $1 } 
- | IDENT MULASSIGN expr { opassign mult $1 } 
- | IDENT DIVASSIGN expr { opassign div $1 } 
- | IDENT MODASSIGN expr { opassign mod $1 } 
- | IDENT LSLASSIGN expr { opassign lshift $1 } 
- | IDENT LSRASSIGN expr { opassign rshift $1 } 
+   ident '=' expr  { if {[indefn]} { code store $1 } else { code push ::$1 ; code reverse 2 ; code storeStk } }
+ | ident ADDASSIGN expr { opassign add $1 } 
+ | ident SUBASSIGN expr { opassign sub $1 } 
+ | ident MULASSIGN expr { opassign mult $1 } 
+ | ident DIVASSIGN expr { opassign div $1 } 
+ | ident MODASSIGN expr { opassign mod $1 } 
+ | ident LSLASSIGN expr { opassign lshift $1 } 
+ | ident LSRASSIGN expr { opassign rshift $1 } 
  ;
 
 defn:
-   func PROCNAME '(' arglist ')' stmt {
+   func PROCNAME '(' argdeflist ')' stmt {
        code label be_[curblki]
        set blk [curblk]
        proc $2 [dict get $blk args] [list ::tcl::unsupported::assemble [getcode]]
@@ -162,7 +224,7 @@ identlist: { set _ {} }
  | identlist ',' IDENT { set _ $1 ; lappend _ $3 }
  ;
 
-arglist: identlist { set blk [curblk] ; dict set blk args $1 ; lset ::nested end end $blk }
+argdeflist: identlist { set blk [curblk] ; dict set blk "args" $1 ; lset ::nested end $blk }
  ;
 
 stmt: expr { code pop }
@@ -175,7 +237,7 @@ stmt: expr { code pop }
  | BREAK { check_loop break ; code jump be_[curloopblki] }
  | CONTINUE { check_loop continue ; code jump bs_[curloopblki] }
  | LBRACKET stmtlist RBRACKET {}
- | VAR identlist { check var func ; set blk [curblk] ; dict lappend blk locals {*}$2 ; lreplace ::nested end $blk }
+ | LOCAL identlist { check var func ; set blk [curblk] ; dict lappend blk "locals" {*}$2 ; lset ::nested end $blk }
  ;
 
 if: IF { startblk if }
@@ -225,24 +287,30 @@ expr:
    NUMBER { code push $1 }
  | STRING { code push $1 }
  | procname '(' arglist ')' { code invokeStk [incr 3] }
- | INCR IDENT {
-      if {[islocal $2]} {
+ | INCR ident {
+      if {[indefn]} {
          code incrImm $2 1
       } else {
-         push ::$2 ; code incrStkImm 1
+         code push ::$2 ; code incrStkImm 1
       }
  }
- | DECR IDENT { if {[islocal $2]} { code incrImm $2 -1 } else { push ::$2 ; code incrStkImm -1 } }
- | VARNAME INCR {
-      if {[islocal $1]} {
+ | DECR ident { 
+      if {[indefn]} {
+         code incrImm $2 -1
+      } else {
+         code push ::$2 ; code incrStkImm -1
+      }
+ }
+ | varname INCR {
+      if {[indefn]} {
           code load $1 ; code incrImm $1 1 ; code pop
       } else {
          code push ::$1 ; code loadStk 
 	 code push ::$1 ; code incrStkImm 1 ; code pop
       }
  }
- | VARNAME DECR {
-      if {[islocal $1]} {
+ | varname DECR {
+      if {[indefn]} {
           code load $1 ; code incrImm $1 -1 ; code pop
       } else {
          code push ::$1 ; code loadStk 
@@ -250,9 +318,8 @@ expr:
       }
  }
  | asgn
- | IDENT { is {[islocal $2]} { code load $2 } else { code push ::$2 ; code loadStk }
- | ARG { code load $1 }
- | READ '(' IDENT ')'   { doread $1 }
+ | ident { if {[indefn]} { code load $1 } else { code push ::$1 ; code loadStk } }
+ | READ '(' ident ')'   { code push "gets" ; code push "stdin" ; code push $3 ; code invokeStk 3 }
  | bltin '(' ')' { code invokeStk 1 }
  | bltin '(' expr ')' { code invokeStk 2 }
  | bltin '(' expr ',' expr ')' { code invokeStk 3 }

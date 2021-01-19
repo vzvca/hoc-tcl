@@ -23,8 +23,8 @@ func      { return $::FUNC }
 return    { return $::RETURN }
 break     { return $::BREAK }
 continue  { return $::CONTINUE }
-var       { return $::VAR }
-"(.|\\")*" { set ::yylval $yytext; return $::STRING }
+local     { return $::LOCAL }
+\"([^\"]|\\\")*\" { set ::yylval $yytext; return $::STRING }
 \$[0-9]    { set ::yylval [string index $yytext 1]; return $::ARG }
 [_A-Za-z][_A-Za-z0-9]*(?=\s*\() { set ::yylval $yytext; return $::PROCNAME }
 [_A-Za-z][_A-Za-z0-9]*(?=\s*\+\+) { set ::yylval $yytext; return $::VARNAME }
