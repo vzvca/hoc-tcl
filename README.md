@@ -39,6 +39,8 @@ Shift/Reduce error in state 18 between rule 10 and token "/", resolved as shift.
 !done
 ````
 
+The `.tac` file contains the grammar, the `.fcl` file contains the lexer.
+
 Here is how to use it :
 ````
 $ tclsh hoc1.tac.tcl
@@ -125,7 +127,37 @@ The bytecode generator is very crude and doesn't attempt to perform any optimiza
 
 ## Stage 5
 
-Adding control flow `if ... else` and `while` loops. They get compiled to TCL bytecode and can be nested.
+Adding control flow `if ... else` and `while` loops. They get compiled to TCL bytecode and can be nested. Internally a stack of nested control structure is maintained, each time a control flow construct is entered a new record is pushed on the stack. This record contains the nature of the control construct and a unique index which is used to generate labels and jumps.
+
+Labels are :
+  * `bs_<index>` : label for start of control flow. Could be the target of `jump` instruction.
+  * `be_<index>` : label for end of control flow. Could be the target of `jump` instruction.
+  * `bt_<index>` : label for 'branch if true' typically used for `if` instructions. Could be target of `jumpTrue` instruction.
+  * `bf_<index>` : label for 'branch if false' typically used for `if`, `while` instructions. Could be target of `jumpTrue` instruction.
+
+Example of use of these labels in `hoc6` (`hoc5` lacks the `-d` command line switch shows generated insctructions) :
+````
+$ ./hoc6 -d
+if ( 1 == 0 ) { print 66 } else { print 77 }
+push 1
+push 0
+eq
+jumpFalse bf_1
+label bt_1
+push 66
+push puts
+reverse 2
+invokeStk 2
+pop
+jump be_1
+label bf_1
+push 77
+push puts
+reverse 2
+invokeStk 2
+pop
+label be_1
+````
 
 ## Stage 6
 
@@ -142,6 +174,7 @@ proc ftwo args {
 ````
 which disassembles to :
 ````
+% source tool/disasm.tcl
 % disasm proc ftwo
 ByteCode 0x0x8000b3a70, refCt 1, epoch 18, interp 0x0x80000d230 (epoch 18)
   Source "\n     lassign $args 1 2 3 4 5 6 7 8 9\n     ::tcl::uns..."
@@ -209,16 +242,16 @@ ByteCode 0x0x8000b3a70, refCt 1, epoch 18, interp 0x0x80000d230 (epoch 18)
 ## Stage 7
 
 The book stopped at hoc6 but suggest some enhancements like :
-  * named function parameters (work-in-progress)
-  * lazy evaluation like in C for `||` and `&&`  (done)
-  * add `do ... while` loops  (done)
-  * add `break` and `continue` to loops (done)
-  * add C-like op-assign operators like `+=`, `-=` and so on (done)
-  * add C-like `++` and `--` operators (done)
-  * add C-like ternary operator `?:` (done)
-  * add arrays and structured data
-  * perform constant folding during expression compilation
-  * add `~~` and `!~` operators to test if values are almost equals or not (using global EPS which defaults to 1e-6). (done)
+  * named function parameters
+  * lazy evaluation like in C for `||` and `&&`
+  * add `do ... while` loops
+  * add `break` and `continue` to loops
+  * add C-like op-assign operators like `+=`, `-=` and so on
+  * add C-like `++` and `--` operators
+  * add C-like ternary operator `?:`
+  * add `~~` and `!~` operators to test if values are almost equals or not (using global EPS which defaults to 1e-6).
+  * add arrays and structured data (work-in-progress)
+  * perform constant folding during expression compilation (still-to-be-done)
 
 These enhancements are being added to hoc7 with some internal changes :
   * global variables are not kept in the `::mem()` TCL array anymore.
@@ -227,7 +260,26 @@ These enhancements are being added to hoc7 with some internal changes :
   * builtin string operations were added.
   * add a `var v1,v2, ...` statement to declare variables local to functions.
 
-Structured data were implemented using `dict` and are using dedicated TCL bytecodes like `dictSet` and `dictGet`.
+Structured data will be implemented using `dict` and are using dedicated TCL bytecodes like `dictSet` and `dictGet`.
+
+From `hoc7`one can call TCL commands, like in the session below :
+````
+while( i < 10 ) {
+puts(format("%d -> %d", i, i*i))
+i++
+}
+0 -> 0
+1 -> 1
+2 -> 4
+3 -> 9
+4 -> 16
+5 -> 25
+6 -> 36
+7 -> 49
+8 -> 64
+9 -> 81
+
+````
 
 
 ## TCL bytecodes
@@ -263,8 +315,10 @@ Control flow statements are implemented with jumps (conditional or not) and labe
   * `jump label` : always jump, doesn't change the stack. Used to implement `return`.
 
 
-## Future directions
+## Future directions (hoc8)
 
-Maybe I will try a reimplementation of `little language` using `fickle/tackle`.
+Add a `tcl` keyword to run arbitrary TCL code from `hoc`
+
+
 
 
